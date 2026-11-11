@@ -74,7 +74,7 @@ trait WP_MCP_Bridge_Admin {
 	}
 
 	/**
-	 * Renderiza la interfaz del panel.
+	 * Renderiza la interfaz del panel con un diseño limpio y moderno.
 	 *
 	 * @return void
 	 */
@@ -89,7 +89,7 @@ trait WP_MCP_Bridge_Admin {
 		$logs     = get_option( self::LOG_KEY, array() );
 		$user     = wp_get_current_user();
 
-		// Generar JSON para Cursor / Claude
+		// JSON para clientes
 		$mcp_json_snippet = array(
 			'mcpServers' => array(
 				'wordpress' => array(
@@ -101,115 +101,427 @@ trait WP_MCP_Bridge_Admin {
 			),
 		);
 		$json_str = wp_json_encode( $mcp_json_snippet, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+
+		$modules_info = array(
+			'core'        => array(
+				'name' => 'Núcleo (Core)',
+				'desc' => 'Entradas, páginas, Custom Post Types, taxonomías y plugins.',
+				'icon' => 'dashicons-admin-post',
+				'tag'  => 'Base',
+			),
+			'media'       => array(
+				'name' => 'Biblioteca de Medios',
+				'desc' => 'Gestión y subida de imágenes por URL remota y Base64.',
+				'icon' => 'dashicons-admin-media',
+				'tag'  => 'Archivos',
+			),
+			'woocommerce' => array(
+				'name' => 'WooCommerce',
+				'desc' => 'Productos, inventario, precios, pedidos y clientes.',
+				'icon' => 'dashicons-cart',
+				'tag'  => 'Tienda',
+			),
+			'seo'         => array(
+				'name' => 'SEO Multigestor',
+				'desc' => 'Lectura y optimización con Yoast, Rank Math y AIOSEO.',
+				'icon' => 'dashicons-search',
+				'tag'  => 'Metadatos',
+			),
+			'cache'       => array(
+				'name' => 'Caché & Rendimiento',
+				'desc' => 'Purga de LiteSpeed, WP Rocket, WP Super Cache y W3TC.',
+				'icon' => 'dashicons-performance',
+				'tag'  => 'Velocidad',
+			),
+		);
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'WP MCP Agent Bridge — Conexión para Asistentes de IA', 'wp-mcp-agent-bridge' ); ?></h1>
-			<p class="description">
-				<?php esc_html_e( 'Conecta cualquier asistente de IA (Cursor, Antigravity, Claude Desktop, VS Code) a tu WordPress mediante el estándar nativo Model Context Protocol (MCP).', 'wp-mcp-agent-bridge' ); ?>
-			</p>
+		<div class="wrap mcp-wrap">
+			<style>
+				.mcp-wrap {
+					max-width: 1200px;
+					margin: 20px auto 40px;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+				}
+				.mcp-header-card {
+					background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
+					color: #fff;
+					padding: 24px 30px;
+					border-radius: 8px 8px 0 0;
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+				}
+				.mcp-header-title {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+				}
+				.mcp-header-title h1 {
+					color: #fff;
+					margin: 0;
+					font-size: 22px;
+					font-weight: 700;
+				}
+				.mcp-badge {
+					background: #2271b1;
+					color: #fff;
+					font-size: 11px;
+					font-weight: 600;
+					padding: 3px 8px;
+					border-radius: 12px;
+					text-transform: uppercase;
+				}
+				.mcp-status-pill {
+					display: inline-flex;
+					align-items: center;
+					gap: 6px;
+					background: rgba(255, 255, 255, 0.1);
+					padding: 6px 14px;
+					border-radius: 20px;
+					font-size: 13px;
+					font-weight: 500;
+				}
+				.mcp-dot {
+					width: 8px;
+					height: 8px;
+					border-radius: 50%;
+					display: inline-block;
+				}
+				.mcp-dot-online { background: #46b450; box-shadow: 0 0 6px #46b450; }
+				.mcp-dot-offline { background: #dc3232; }
 
-			<div style="display: flex; gap: 20px; margin-top: 20px;">
-				<div style="flex: 1; max-width: 600px;">
-					<form method="post" action="options.php">
-						<?php
-						settings_fields( 'wp_mcp_agent_bridge_group' );
-						?>
-						<table class="form-table" role="presentation">
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Estado del Servidor MCP', 'wp-mcp-agent-bridge' ); ?></th>
-								<td>
-									<label>
-										<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enabled]" value="1" <?php checked( $settings['enabled'] ); ?> />
-										<strong><?php esc_html_e( 'Habilitar servidor MCP', 'wp-mcp-agent-bridge' ); ?></strong>
-									</label>
-								</td>
-							</tr>
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Políticas de Seguridad', 'wp-mcp-agent-bridge' ); ?></th>
-								<td>
-									<label style="display:block; margin-bottom: 8px;">
-										<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[allow_writes]" value="1" <?php checked( $settings['allow_writes'] ); ?> />
-										<?php esc_html_e( 'Permitir operaciones de escritura (crear y editar posts, productos, medios)', 'wp-mcp-agent-bridge' ); ?>
-									</label>
-									<label style="display:block;">
-										<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[allow_deletes]" value="1" <?php checked( $settings['allow_deletes'] ); ?> />
-										<strong style="color: #d63638;"><?php esc_html_e( 'Permitir operaciones destructivas (eliminar posts o productos permanentemente)', 'wp-mcp-agent-bridge' ); ?></strong>
-									</label>
-								</td>
-							</tr>
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Módulos Activos', 'wp-mcp-agent-bridge' ); ?></th>
-								<td>
-									<?php foreach ( $settings['modules'] as $mod_key => $is_active ) : ?>
-										<label style="display:inline-block; margin-right: 15px; margin-bottom: 5px;">
-											<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[modules][<?php echo esc_attr( $mod_key ); ?>]" value="1" <?php checked( $is_active ); ?> />
-											<?php echo esc_html( ucfirst( $mod_key ) ); ?>
-										</label>
-									<?php endforeach; ?>
-								</td>
-							</tr>
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Registro de Auditoría', 'wp-mcp-agent-bridge' ); ?></th>
-								<td>
-									<label>
-										<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[activity_log_enabled]" value="1" <?php checked( $settings['activity_log_enabled'] ); ?> />
-										<?php esc_html_e( 'Guardar las últimas 50 llamadas de herramientas para auditoría', 'wp-mcp-agent-bridge' ); ?>
-									</label>
-								</td>
-							</tr>
-						</table>
-						<?php submit_button( __( 'Guardar Cambios', 'wp-mcp-agent-bridge' ) ); ?>
-					</form>
-				</div>
+				.mcp-layout {
+					display: grid;
+					grid-template-columns: 1fr;
+					gap: 20px;
+					background: #f0f0f1;
+					border: 1px solid #c3c4c7;
+					border-top: none;
+					padding: 24px;
+					border-radius: 0 0 8px 8px;
+				}
+				@media (min-width: 900px) {
+					.mcp-layout {
+						grid-template-columns: 7fr 5fr;
+					}
+				}
+				.mcp-box {
+					background: #fff;
+					border: 1px solid #c3c4c7;
+					border-radius: 6px;
+					padding: 20px 24px;
+					box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+					margin-bottom: 20px;
+				}
+				.mcp-box:last-child {
+					margin-bottom: 0;
+				}
+				.mcp-box-title {
+					margin: 0 0 16px 0;
+					padding-bottom: 10px;
+					border-bottom: 2px solid #f0f0f1;
+					font-size: 15px;
+					font-weight: 600;
+					color: #1d2327;
+					display: flex;
+					align-items: center;
+					gap: 8px;
+				}
+				.mcp-card-item {
+					display: flex;
+					align-items: flex-start;
+					gap: 12px;
+					background: #f8f9fa;
+					border: 1px solid #e2e4e7;
+					border-radius: 6px;
+					padding: 12px 14px;
+					margin-bottom: 10px;
+					transition: border 0.15s, background 0.15s;
+				}
+				.mcp-card-item:hover {
+					background: #f0f6fc;
+					border-color: #72aee6;
+				}
+				.mcp-card-item input[type="checkbox"] {
+					margin-top: 3px;
+					transform: scale(1.15);
+					cursor: pointer;
+				}
+				.mcp-card-label {
+					font-weight: 600;
+					font-size: 13.5px;
+					color: #1d2327;
+					cursor: pointer;
+					display: block;
+				}
+				.mcp-card-desc {
+					font-size: 12px;
+					color: #646970;
+					margin: 3px 0 0;
+					line-height: 1.4;
+				}
+				.mcp-tag {
+					font-size: 10px;
+					font-weight: 600;
+					padding: 2px 6px;
+					border-radius: 3px;
+					background: #e7e8ea;
+					color: #50575e;
+					margin-left: 6px;
+				}
+				.mcp-code-block {
+					background: #1e1e1e;
+					color: #9cdcfe;
+					padding: 14px;
+					border-radius: 5px;
+					font-family: Consolas, Monaco, "Courier New", monospace;
+					font-size: 12px;
+					line-height: 1.5;
+					overflow-x: auto;
+					position: relative;
+				}
+				.mcp-copy-btn {
+					float: right;
+					background: #2271b1;
+					color: #fff;
+					border: none;
+					padding: 4px 10px;
+					border-radius: 3px;
+					cursor: pointer;
+					font-size: 11px;
+					font-weight: 600;
+					transition: background 0.15s;
+				}
+				.mcp-copy-btn:hover {
+					background: #135e96;
+				}
+				.mcp-endpoint-input {
+					width: 100%;
+					font-family: monospace;
+					background: #f6f7f7;
+					border: 1px solid #8c8f94;
+					padding: 6px 10px;
+					border-radius: 4px;
+					margin: 4px 0 12px;
+					font-size: 12.5px;
+					color: #2c3338;
+				}
+				.mcp-table {
+					width: 100%;
+					border-collapse: collapse;
+					font-size: 12.5px;
+				}
+				.mcp-table th, .mcp-table td {
+					padding: 10px 12px;
+					text-align: left;
+					border-bottom: 1px solid #f0f0f1;
+				}
+				.mcp-table th {
+					background: #f6f7f7;
+					font-weight: 600;
+					color: #50575e;
+				}
+				.mcp-badge-ok {
+					background: #e7f5ea;
+					color: #185a25;
+					font-weight: 600;
+					padding: 2px 6px;
+					border-radius: 3px;
+					font-size: 11px;
+				}
+				.mcp-badge-err {
+					background: #fbeae5;
+					color: #8a2414;
+					font-weight: 600;
+					padding: 2px 6px;
+					border-radius: 3px;
+					font-size: 11px;
+				}
+			</style>
 
-				<div style="flex: 1; background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
-					<h2><?php esc_html_e( 'Configuración para Clientes MCP', 'wp-mcp-agent-bridge' ); ?></h2>
-					<p><strong>Endpoint URL:</strong> <code><?php echo esc_html( $endpoint ); ?></code></p>
-					<p><strong>Herramientas expuestas actualmente:</strong> <?php echo count( $tools ); ?></p>
-
-					<h3><?php esc_html_e( 'Snippet para Cursor / Claude Desktop / Antigravity:', 'wp-mcp-agent-bridge' ); ?></h3>
-					<textarea readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 12px;"><?php echo esc_textarea( $json_str ); ?></textarea>
-					<p class="description">
-						<?php esc_html_e( 'Crea una Application Password en Usuarios > Tu Perfil y reemplaza TU_APPLICATION_PASSWORD_AQUI.', 'wp-mcp-agent-bridge' ); ?>
+			<div class="mcp-header-card">
+				<div>
+					<div class="mcp-header-title">
+						<span class="dashicons dashicons-rest-api" style="font-size: 28px; width: 28px; height: 28px; color: #72aee6;"></span>
+						<h1>WP MCP Agent Bridge</h1>
+						<span class="mcp-badge">v<?php echo esc_html( self::VERSION ); ?></span>
+					</div>
+					<p style="margin: 6px 0 0; color: #c3c4c7; font-size: 13px;">
+						<?php esc_html_e( 'Servidor nativo Model Context Protocol para conectar asistentes de IA (Cursor, Antigravity, Claude, VS Code).', 'wp-mcp-agent-bridge' ); ?>
 					</p>
+				</div>
+				<div>
+					<div class="mcp-status-pill">
+						<span class="mcp-dot <?php echo ! empty( $settings['enabled'] ) ? 'mcp-dot-online' : 'mcp-dot-offline'; ?>"></span>
+						<span><?php echo ! empty( $settings['enabled'] ) ? esc_html__( 'Servidor Activo', 'wp-mcp-agent-bridge' ) : esc_html__( 'Servidor Inactivo', 'wp-mcp-agent-bridge' ); ?></span>
+					</div>
 				</div>
 			</div>
 
-			<hr style="margin: 30px 0;" />
+			<div class="mcp-layout">
+				<!-- COLUMNA IZQUIERDA: Formulario de Configuración -->
+				<div>
+					<form method="post" action="options.php">
+						<?php settings_fields( 'wp_mcp_agent_bridge_group' ); ?>
 
-			<h2><?php esc_html_e( 'Última Actividad de Herramientas MCP', 'wp-mcp-agent-bridge' ); ?></h2>
-			<?php if ( empty( $logs ) ) : ?>
-				<p><em><?php esc_html_e( 'No hay llamadas registradas todavía.', 'wp-mcp-agent-bridge' ); ?></em></p>
-			<?php else : ?>
-				<table class="widefat striped" style="max-width: 1000px;">
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Fecha/Hora', 'wp-mcp-agent-bridge' ); ?></th>
-							<th><?php esc_html_e( 'Herramienta', 'wp-mcp-agent-bridge' ); ?></th>
-							<th><?php esc_html_e( 'Usuario', 'wp-mcp-agent-bridge' ); ?></th>
-							<th><?php esc_html_e( 'Estado', 'wp-mcp-agent-bridge' ); ?></th>
-							<th><?php esc_html_e( 'Detalle', 'wp-mcp-agent-bridge' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php foreach ( array_slice( $logs, 0, 15 ) as $log ) : ?>
+						<!-- Caja 1: Estado y Gobernanza -->
+						<div class="mcp-box">
+							<h3 class="mcp-box-title">
+								<span class="dashicons dashicons-shield"></span>
+								<?php esc_html_e( '1. Estado y Políticas de Seguridad', 'wp-mcp-agent-bridge' ); ?>
+							</h3>
+
+							<div class="mcp-card-item">
+								<input type="checkbox" id="mcp_enabled" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enabled]" value="1" <?php checked( $settings['enabled'] ); ?> />
+								<div>
+									<label for="mcp_enabled" class="mcp-card-label"><?php esc_html_e( 'Habilitar servidor MCP', 'wp-mcp-agent-bridge' ); ?></label>
+									<p class="mcp-card-desc"><?php esc_html_e( 'Permite atender solicitudes JSON-RPC en /wp-json/mcp/v1 autenticadas con Application Passwords.', 'wp-mcp-agent-bridge' ); ?></p>
+								</div>
+							</div>
+
+							<div class="mcp-card-item">
+								<input type="checkbox" id="mcp_allow_writes" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[allow_writes]" value="1" <?php checked( $settings['allow_writes'] ); ?> />
+								<div>
+									<label for="mcp_allow_writes" class="mcp-card-label"><?php esc_html_e( 'Permitir operaciones de escritura', 'wp-mcp-agent-bridge' ); ?></label>
+									<p class="mcp-card-desc"><?php esc_html_e( 'Permite a la IA crear o modificar contenido (posts, productos, subir medios). Si está desmarcado, el servidor opera en modo solo lectura.', 'wp-mcp-agent-bridge' ); ?></p>
+								</div>
+							</div>
+
+							<div class="mcp-card-item" style="border-left: 3px solid #d63638;">
+								<input type="checkbox" id="mcp_allow_deletes" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[allow_deletes]" value="1" <?php checked( $settings['allow_deletes'] ); ?> />
+								<div>
+									<label for="mcp_allow_deletes" class="mcp-card-label" style="color: #d63638;"><?php esc_html_e( 'Permitir operaciones destructivas (Eliminar)', 'wp-mcp-agent-bridge' ); ?></label>
+									<p class="mcp-card-desc"><?php esc_html_e( 'Permite a la IA enviar contenido a la papelera o eliminarlo permanentemente. Se recomienda mantener deshabilitado.', 'wp-mcp-agent-bridge' ); ?></p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Caja 2: Módulos de Herramientas -->
+						<div class="mcp-box">
+							<h3 class="mcp-box-title">
+								<span class="dashicons dashicons-screenoptions"></span>
+								<?php esc_html_e( '2. Módulos y Herramientas Habilitadas', 'wp-mcp-agent-bridge' ); ?>
+							</h3>
+							<p style="font-size: 12px; color: #646970; margin-top: 0; margin-bottom: 14px;">
+								<?php esc_html_e( 'Activa o desactiva qué áreas del sitio puede operar el asistente de IA.', 'wp-mcp-agent-bridge' ); ?>
+							</p>
+
+							<?php foreach ( $modules_info as $mod_key => $mod_data ) : ?>
+								<div class="mcp-card-item">
+									<input type="checkbox" id="mcp_mod_<?php echo esc_attr( $mod_key ); ?>" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[modules][<?php echo esc_attr( $mod_key ); ?>]" value="1" <?php checked( ! empty( $settings['modules'][ $mod_key ] ) ); ?> />
+									<div>
+										<label for="mcp_mod_<?php echo esc_attr( $mod_key ); ?>" class="mcp-card-label">
+											<span class="dashicons <?php echo esc_attr( $mod_data['icon'] ); ?>" style="font-size: 16px; width: 16px; height: 16px; vertical-align: text-top; margin-right: 4px; color: #2271b1;"></span>
+											<?php echo esc_html( $mod_data['name'] ); ?>
+											<span class="mcp-tag"><?php echo esc_html( $mod_data['tag'] ); ?></span>
+										</label>
+										<p class="mcp-card-desc"><?php echo esc_html( $mod_data['desc'] ); ?></p>
+									</div>
+								</div>
+							<?php endforeach; ?>
+						</div>
+
+						<!-- Caja 3: Auditoría -->
+						<div class="mcp-box">
+							<h3 class="mcp-box-title">
+								<span class="dashicons dashicons-list-view"></span>
+								<?php esc_html_e( '3. Auditoría de Actividad', 'wp-mcp-agent-bridge' ); ?>
+							</h3>
+							<div class="mcp-card-item">
+								<input type="checkbox" id="mcp_activity_log" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[activity_log_enabled]" value="1" <?php checked( $settings['activity_log_enabled'] ); ?> />
+								<div>
+									<label for="mcp_activity_log" class="mcp-card-label"><?php esc_html_e( 'Registrar llamadas de herramientas', 'wp-mcp-agent-bridge' ); ?></label>
+									<p class="mcp-card-desc"><?php esc_html_e( 'Guarda de forma rotativa las últimas 50 llamadas ejecutadas por la IA con usuario, fecha y resultado.', 'wp-mcp-agent-bridge' ); ?></p>
+								</div>
+							</div>
+						</div>
+
+						<div style="margin-top: 15px;">
+							<?php submit_button( __( 'Guardar Configuración', 'wp-mcp-agent-bridge' ), 'primary', 'submit', false, array( 'style' => 'padding: 6px 20px; font-weight: 600;' ) ); ?>
+						</div>
+					</form>
+				</div>
+
+				<!-- COLUMNA DERECHA: Conexión con Clientes -->
+				<div>
+					<div class="mcp-box" style="border-top: 3px solid #2271b1;">
+						<h3 class="mcp-box-title">
+							<span class="dashicons dashicons-admin-links"></span>
+							<?php esc_html_e( 'Conexión con Asistentes IA', 'wp-mcp-agent-bridge' ); ?>
+						</h3>
+
+						<label style="font-size: 12px; font-weight: 600; color: #50575e;"><?php esc_html_e( 'URL del Endpoint MCP (HTTP JSON-RPC):', 'wp-mcp-agent-bridge' ); ?></label>
+						<input type="text" class="mcp-endpoint-input" readonly value="<?php echo esc_attr( $endpoint ); ?>" onclick="this.select();" />
+
+						<div style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0 6px;">
+							<span style="font-size: 12px; font-weight: 600; color: #50575e;"><?php esc_html_e( 'Configuración JSON (.cursor/mcp.json):', 'wp-mcp-agent-bridge' ); ?></span>
+							<button type="button" class="mcp-copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('mcp_json_snippet').value); this.innerText='¡Copiado!'; setTimeout(() => this.innerText='Copiar', 2000);">
+								<?php esc_html_e( 'Copiar JSON', 'wp-mcp-agent-bridge' ); ?>
+							</button>
+						</div>
+
+						<textarea id="mcp_json_snippet" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 11.5px; background: #1e1e1e; color: #9cdcfe; border-radius: 4px; padding: 10px;"><?php echo esc_textarea( $json_str ); ?></textarea>
+
+						<div style="background: #eef2fa; border-left: 3px solid #2271b1; padding: 10px 12px; border-radius: 4px; margin-top: 14px; font-size: 12px; color: #1a4282;">
+							<strong><?php esc_html_e( 'Instrucciones:', 'wp-mcp-agent-bridge' ); ?></strong>
+							<ol style="margin: 6px 0 0 16px; padding: 0;">
+								<li><?php esc_html_e( 'Ve a Usuarios > Perfil y crea una "Contraseña de aplicación".', 'wp-mcp-agent-bridge' ); ?></li>
+								<li><?php esc_html_e( 'Reemplaza TU_APPLICATION_PASSWORD_AQUI con tu contraseña.', 'wp-mcp-agent-bridge' ); ?></li>
+								<li><?php esc_html_e( 'Pega el bloque en Cursor, Windsurf, Claude o Antigravity.', 'wp-mcp-agent-bridge' ); ?></li>
+							</ol>
+						</div>
+
+						<div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f0f1; font-size: 12.5px; color: #646970;">
+							<span><?php esc_html_e( 'Herramientas expuestas actualmente:', 'wp-mcp-agent-bridge' ); ?></span>
+							<strong style="color: #2271b1; font-size: 14px; float: right;"><?php echo count( $tools ); ?></strong>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Registro de Auditoría Inferior -->
+			<div class="mcp-box" style="margin-top: 24px;">
+				<h3 class="mcp-box-title">
+					<span class="dashicons dashicons-visibility"></span>
+					<?php esc_html_e( 'Registro en Vivo de Llamadas MCP', 'wp-mcp-agent-bridge' ); ?>
+				</h3>
+
+				<?php if ( empty( $logs ) ) : ?>
+					<p style="font-size: 13px; color: #646970; font-style: italic; margin: 10px 0;">
+						<?php esc_html_e( 'No hay llamadas registradas todavía. Cuando tu asistente de IA ejecute una herramienta, aparecerá aquí en tiempo real.', 'wp-mcp-agent-bridge' ); ?>
+					</p>
+				<?php else : ?>
+					<table class="mcp-table">
+						<thead>
 							<tr>
-								<td><?php echo esc_html( $log['timestamp'] ); ?></td>
-								<td><code><?php echo esc_html( $log['tool'] ); ?></code></td>
-								<td><?php echo esc_html( $log['user_name'] ); ?></td>
-								<td>
-									<?php if ( ! empty( $log['success'] ) ) : ?>
-										<span style="color: #46b450; font-weight: bold;">✔ OK</span>
-									<?php else : ?>
-										<span style="color: #dc3232; font-weight: bold;">✖ Error</span>
-									<?php endif; ?>
-								</td>
-								<td><?php echo esc_html( $log['message'] ); ?></td>
+								<th style="width: 160px;"><?php esc_html_e( 'Fecha / Hora', 'wp-mcp-agent-bridge' ); ?></th>
+								<th style="width: 180px;"><?php esc_html_e( 'Herramienta', 'wp-mcp-agent-bridge' ); ?></th>
+								<th style="width: 120px;"><?php esc_html_e( 'Usuario', 'wp-mcp-agent-bridge' ); ?></th>
+								<th style="width: 80px;"><?php esc_html_e( 'Estado', 'wp-mcp-agent-bridge' ); ?></th>
+								<th><?php esc_html_e( 'Detalle / Mensaje', 'wp-mcp-agent-bridge' ); ?></th>
 							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-			<?php endif; ?>
+						</thead>
+						<tbody>
+							<?php foreach ( array_slice( $logs, 0, 15 ) as $log ) : ?>
+								<tr>
+									<td><?php echo esc_html( $log['timestamp'] ); ?></td>
+									<td><code style="background: #f0f0f1; padding: 2px 6px; border-radius: 3px; font-weight: 600;"><?php echo esc_html( $log['tool'] ); ?></code></td>
+									<td><?php echo esc_html( $log['user_name'] ); ?></td>
+									<td>
+										<?php if ( ! empty( $log['success'] ) ) : ?>
+											<span class="mcp-badge-ok">✔ OK</span>
+										<?php else : ?>
+											<span class="mcp-badge-err">✖ Error</span>
+										<?php endif; ?>
+									</td>
+									<td><?php echo esc_html( $log['message'] ); ?></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php endif; ?>
+			</div>
 		</div>
 		<?php
 	}
