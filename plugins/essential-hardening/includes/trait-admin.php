@@ -128,6 +128,7 @@ trait Essential_Hardening_Admin {
 				}
 				.eh-banner {
 					background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
+					border-top: 4px solid #98825b;
 					color: #ffffff;
 					padding: 24px 30px;
 					border-radius: 8px 8px 0 0;
@@ -136,7 +137,7 @@ trait Essential_Hardening_Admin {
 					justify-content: space-between;
 					flex-wrap: wrap;
 					gap: 15px;
-					border: 1px solid #1d2327;
+					border: 1px solid #d5c8b2;
 					border-bottom: none;
 				}
 				.eh-banner-title {
@@ -156,7 +157,7 @@ trait Essential_Hardening_Admin {
 					line-height: 1.45;
 				}
 				.eh-version-badge {
-					background: #2271b1;
+					background: #98825b;
 					color: #ffffff;
 					font-size: 11px;
 					padding: 3px 8px;
@@ -175,18 +176,18 @@ trait Essential_Hardening_Admin {
 					text-align: right;
 				}
 				.eh-stats-pill strong {
-					color: #72aee6;
+					color: #cedded;
 					font-size: 15px;
 				}
 				.eh-card {
 					background: #ffffff;
-					border: 1px solid #c3c4c7;
+					border: 1px solid #d5c8b2;
 					border-top: none;
 					padding: 24px 28px;
 				}
 				.eh-card:last-of-type {
 					border-radius: 0 0 8px 8px;
-					border-bottom: 1px solid #c3c4c7;
+					border-bottom: 1px solid #d5c8b2;
 				}
 				.eh-card-header {
 					display: flex;
@@ -194,7 +195,7 @@ trait Essential_Hardening_Admin {
 					gap: 12px;
 					margin-bottom: 16px;
 					padding-bottom: 12px;
-					border-bottom: 2px solid #f0f0f1;
+					border-bottom: 2px solid #edd1c1;
 				}
 				.eh-card-icon {
 					font-size: 22px;
@@ -225,15 +226,15 @@ trait Essential_Hardening_Admin {
 					display: flex;
 					align-items: flex-start;
 					gap: 14px;
-					background: #f6f7f7;
-					border: 1px solid #dcdcde;
+					background: #fdfaf6;
+					border: 1px solid #e2dcd5;
 					border-radius: 6px;
 					padding: 14px 16px;
 					transition: all 0.15s ease-in-out;
 				}
 				.eh-item:hover {
-					background: #f0f6fc;
-					border-color: #72aee6;
+					background: #ffffff;
+					border-color: #98825b;
 				}
 				.eh-item input[type="checkbox"] {
 					margin-top: 3px;
@@ -264,8 +265,8 @@ trait Essential_Hardening_Admin {
 					letter-spacing: 0.3px;
 				}
 				.eh-tag-firewall { background: #e7f5ea; color: #185a25; }
-				.eh-tag-access   { background: #eef2fa; color: #1a4282; }
-				.eh-tag-privacy  { background: #fef4e8; color: #8a4b08; }
+				.eh-tag-access   { background: #d0ceed; color: #3f3b6c; }
+				.eh-tag-privacy  { background: #edd1c1; color: #6b3e23; }
 				.eh-tag-spam     { background: #fbeae5; color: #8a2414; }
 				.eh-item-desc {
 					margin: 5px 0 0;
@@ -297,6 +298,17 @@ trait Essential_Hardening_Admin {
 					height: 30px;
 					border-radius: 4px;
 					border-color: #8c8f94;
+				}
+				.eh-btn-submit {
+					background: #98825b !important;
+					border-color: #7a6845 !important;
+					color: #ffffff !important;
+					font-weight: 600 !important;
+					border-radius: 4px !important;
+					box-shadow: none !important;
+				}
+				.eh-btn-submit:hover {
+					background: #7a6845 !important;
 				}
 				.eh-submit-bar {
 					margin-top: 20px;
@@ -962,7 +974,7 @@ trait Essential_Hardening_Admin {
 
 				<!-- Barra Inferior de Guardado -->
 				<div class="eh-submit-bar">
-					<?php submit_button( __( 'Guardar Configuración de Seguridad', 'essential-hardening' ), 'primary large', 'submit', false ); ?>
+					<?php submit_button( __( 'Guardar Configuración de Seguridad', 'essential-hardening' ), 'primary large eh-btn-submit', 'submit', false ); ?>
 					<span style="font-size: 12px; color: #646970;">
 						<?php esc_html_e( 'Los cambios se aplican de forma inmediata en memoria.', 'essential-hardening' ); ?>
 					</span>

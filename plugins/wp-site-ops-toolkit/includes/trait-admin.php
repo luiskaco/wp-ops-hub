@@ -135,7 +135,8 @@ trait WP_Site_Ops_Admin {
 					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 				}
 				.ops-header {
-					background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+					background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
+					border-top: 4px solid #98825b;
 					color: #fff;
 					padding: 24px 30px;
 					border-radius: 8px 8px 0 0;
@@ -155,9 +156,9 @@ trait WP_Site_Ops_Admin {
 				.ops-tabs {
 					display: flex;
 					background: #fff;
-					border: 1px solid #cbd5e1;
+					border: 1px solid #d5c8b2;
 					border-top: none;
-					border-bottom: 2px solid #0284c7;
+					border-bottom: 2px solid #98825b;
 					padding: 0 20px;
 				}
 				.ops-tab {
@@ -173,34 +174,34 @@ trait WP_Site_Ops_Admin {
 					transition: all 0.15s;
 				}
 				.ops-tab:hover {
-					color: #0284c7;
+					color: #98825b;
 				}
 				.ops-tab.active {
-					color: #0284c7;
-					border-bottom-color: #0284c7;
+					color: #98825b;
+					border-bottom-color: #98825b;
 				}
 				.ops-content {
-					background: #f8fafc;
-					border: 1px solid #cbd5e1;
+					background: #ede2ce;
+					border: 1px solid #d5c8b2;
 					border-top: none;
 					padding: 28px;
 					border-radius: 0 0 8px 8px;
 				}
 				.ops-card {
-					background: #fff;
-					border: 1px solid #e2e8f0;
+					background: #ffffff;
+					border: 1px solid #d5c8b2;
 					border-radius: 8px;
 					padding: 24px;
 					margin-bottom: 24px;
-					box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+					box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 				}
 				.ops-card-title {
 					margin: 0 0 16px;
 					padding-bottom: 10px;
-					border-bottom: 2px solid #f1f5f9;
+					border-bottom: 2px solid #edd1c1;
 					font-size: 16px;
 					font-weight: 600;
-					color: #0f172a;
+					color: #1d2327;
 					display: flex;
 					align-items: center;
 					gap: 8px;
@@ -212,8 +213,8 @@ trait WP_Site_Ops_Admin {
 					margin-bottom: 24px;
 				}
 				.ops-metric-box {
-					background: #f8fafc;
-					border: 1px solid #e2e8f0;
+					background: #fdfaf6;
+					border: 1px solid #edd1c1;
 					border-radius: 6px;
 					padding: 16px;
 					text-align: center;
@@ -221,7 +222,7 @@ trait WP_Site_Ops_Admin {
 				.ops-metric-num {
 					font-size: 26px;
 					font-weight: 700;
-					color: #0284c7;
+					color: #98825b;
 					margin-bottom: 4px;
 				}
 				.ops-metric-label {
@@ -236,17 +237,28 @@ trait WP_Site_Ops_Admin {
 				}
 				.ops-table th, .ops-table td {
 					padding: 10px 14px;
-					border-bottom: 1px solid #f1f5f9;
+					border-bottom: 1px solid #edd1c1;
 					text-align: left;
 				}
 				.ops-table th {
-					background: #f8fafc;
+					background: #fdfaf6;
 					font-weight: 600;
 					color: #475569;
 				}
-				.ops-badge-ok { background: #dcfce7; color: #15803d; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-				.ops-badge-sim { background: #e0f2fe; color: #0369a1; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-				.ops-badge-fail { background: #fee2e2; color: #b91c1c; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+				.ops-badge-ok { background: #e7f5ea; color: #185a25; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+				.ops-badge-sim { background: #d0ceed; color: #3f3b6c; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+				.ops-badge-fail { background: #fbeae5; color: #8a2414; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+				.ops-btn-primary {
+					background: #98825b !important;
+					border-color: #7a6845 !important;
+					color: #ffffff !important;
+					font-weight: 600 !important;
+					border-radius: 4px !important;
+					box-shadow: none !important;
+				}
+				.ops-btn-primary:hover {
+					background: #7a6845 !important;
+				}
 			</style>
 
 			<div class="ops-header">
@@ -332,7 +344,7 @@ trait WP_Site_Ops_Admin {
 								</tr>
 							</table>
 
-							<?php submit_button( __( 'Guardar Mantenimiento', 'wp-site-ops-toolkit' ) ); ?>
+							<?php submit_button( __( 'Guardar Mantenimiento', 'wp-site-ops-toolkit' ), 'primary', 'submit', true, array( 'class' => 'button button-primary ops-btn-primary' ) ); ?>
 						</div>
 					</form>
 
@@ -376,7 +388,7 @@ trait WP_Site_Ops_Admin {
 								<label><input type="checkbox" name="targets[]" value="orphan_postmeta" checked /> <?php esc_html_e( 'Limpiar metadatos huérfanos sin entrada padre', 'wp-site-ops-toolkit' ); ?></label>
 							</p>
 
-							<button type="submit" class="button button-primary" onclick="return confirm('¿Confirmas que deseas sanear la base de datos?');" style="padding: 6px 16px; font-weight: 600;">
+							<button type="submit" class="button button-primary ops-btn-primary" onclick="return confirm('¿Confirmas que deseas sanear la base de datos?');" style="padding: 6px 16px;">
 								<span class="dashicons dashicons-trash" style="vertical-align: text-top; margin-right: 4px;"></span>
 								<?php esc_html_e( 'Ejecutar Limpieza en 1 Clic', 'wp-site-ops-toolkit' ); ?>
 							</button>
@@ -408,7 +420,7 @@ trait WP_Site_Ops_Admin {
 								<span style="font-size: 12px; display: block; color: #64748b;"><?php esc_html_e( 'Ideal para desarrollo local o staging. Registra los correos aquí sin enviarlos a destinatarios reales.', 'wp-site-ops-toolkit' ); ?></span>
 							</label>
 
-							<?php submit_button( __( 'Guardar Ajustes de Correo', 'wp-site-ops-toolkit' ) ); ?>
+							<?php submit_button( __( 'Guardar Ajustes de Correo', 'wp-site-ops-toolkit' ), 'primary', 'submit', true, array( 'class' => 'button button-primary ops-btn-primary' ) ); ?>
 						</form>
 					</div>
 
