@@ -8,6 +8,7 @@
 # Excepciones que SI se versionan
 !/.gitignore
 !/README.md
+!/README.es.md
 !/AGENTS.md
 !/CLAUDE.md
 !/.agents/
