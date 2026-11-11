@@ -144,6 +144,7 @@ trait WP_MCP_Bridge_Admin {
 				}
 				.mcp-header-card {
 					background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
+					border-top: 4px solid #98825b;
 					color: #fff;
 					padding: 24px 30px;
 					border-radius: 8px 8px 0 0;
@@ -164,19 +165,21 @@ trait WP_MCP_Bridge_Admin {
 					font-weight: 700;
 				}
 				.mcp-badge {
-					background: #2271b1;
-					color: #fff;
+					background: #98825b;
+					color: #ffffff;
 					font-size: 11px;
 					font-weight: 600;
 					padding: 3px 8px;
 					border-radius: 12px;
 					text-transform: uppercase;
+					letter-spacing: 0.5px;
 				}
 				.mcp-status-pill {
 					display: inline-flex;
 					align-items: center;
 					gap: 6px;
 					background: rgba(255, 255, 255, 0.1);
+					border: 1px solid rgba(255, 255, 255, 0.15);
 					padding: 6px 14px;
 					border-radius: 20px;
 					font-size: 13px;
@@ -195,8 +198,8 @@ trait WP_MCP_Bridge_Admin {
 					display: grid;
 					grid-template-columns: 1fr;
 					gap: 20px;
-					background: #f0f0f1;
-					border: 1px solid #c3c4c7;
+					background: #ede2ce;
+					border: 1px solid #d5c8b2;
 					border-top: none;
 					padding: 24px;
 					border-radius: 0 0 8px 8px;
@@ -207,11 +210,11 @@ trait WP_MCP_Bridge_Admin {
 					}
 				}
 				.mcp-box {
-					background: #fff;
-					border: 1px solid #c3c4c7;
+					background: #ffffff;
+					border: 1px solid #d5c8b2;
 					border-radius: 6px;
 					padding: 20px 24px;
-					box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+					box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 					margin-bottom: 20px;
 				}
 				.mcp-box:last-child {
@@ -220,7 +223,7 @@ trait WP_MCP_Bridge_Admin {
 				.mcp-box-title {
 					margin: 0 0 16px 0;
 					padding-bottom: 10px;
-					border-bottom: 2px solid #f0f0f1;
+					border-bottom: 2px solid #edd1c1;
 					font-size: 15px;
 					font-weight: 600;
 					color: #1d2327;
@@ -232,16 +235,16 @@ trait WP_MCP_Bridge_Admin {
 					display: flex;
 					align-items: flex-start;
 					gap: 12px;
-					background: #f8f9fa;
-					border: 1px solid #e2e4e7;
+					background: #ffffff;
+					border: 1px solid #e2dcd5;
 					border-radius: 6px;
 					padding: 12px 14px;
 					margin-bottom: 10px;
 					transition: border 0.15s, background 0.15s;
 				}
 				.mcp-card-item:hover {
-					background: #f0f6fc;
-					border-color: #72aee6;
+					background: #fdfaf6;
+					border-color: #98825b;
 				}
 				.mcp-card-item input[type="checkbox"] {
 					margin-top: 3px;
@@ -264,11 +267,13 @@ trait WP_MCP_Bridge_Admin {
 				.mcp-tag {
 					font-size: 10px;
 					font-weight: 600;
-					padding: 2px 6px;
-					border-radius: 3px;
-					background: #e7e8ea;
-					color: #50575e;
+					padding: 2px 7px;
+					border-radius: 4px;
+					background: #d0ceed;
+					color: #3f3b6c;
 					margin-left: 6px;
+					text-transform: uppercase;
+					letter-spacing: 0.3px;
 				}
 				.mcp-code-block {
 					background: #1e1e1e;
@@ -283,25 +288,25 @@ trait WP_MCP_Bridge_Admin {
 				}
 				.mcp-copy-btn {
 					float: right;
-					background: #2271b1;
+					background: #98825b;
 					color: #fff;
 					border: none;
-					padding: 4px 10px;
-					border-radius: 3px;
+					padding: 5px 12px;
+					border-radius: 4px;
 					cursor: pointer;
 					font-size: 11px;
 					font-weight: 600;
 					transition: background 0.15s;
 				}
 				.mcp-copy-btn:hover {
-					background: #135e96;
+					background: #7a6845;
 				}
 				.mcp-endpoint-input {
 					width: 100%;
 					font-family: monospace;
-					background: #f6f7f7;
-					border: 1px solid #8c8f94;
-					padding: 6px 10px;
+					background: #fdfaf6;
+					border: 1px solid #d5c8b2;
+					padding: 7px 10px;
 					border-radius: 4px;
 					margin: 4px 0 12px;
 					font-size: 12.5px;
@@ -315,10 +320,10 @@ trait WP_MCP_Bridge_Admin {
 				.mcp-table th, .mcp-table td {
 					padding: 10px 12px;
 					text-align: left;
-					border-bottom: 1px solid #f0f0f1;
+					border-bottom: 1px solid #edd1c1;
 				}
 				.mcp-table th {
-					background: #f6f7f7;
+					background: #fdfaf6;
 					font-weight: 600;
 					color: #50575e;
 				}
@@ -326,17 +331,29 @@ trait WP_MCP_Bridge_Admin {
 					background: #e7f5ea;
 					color: #185a25;
 					font-weight: 600;
-					padding: 2px 6px;
-					border-radius: 3px;
+					padding: 2px 7px;
+					border-radius: 4px;
 					font-size: 11px;
 				}
 				.mcp-badge-err {
 					background: #fbeae5;
 					color: #8a2414;
 					font-weight: 600;
-					padding: 2px 6px;
-					border-radius: 3px;
+					padding: 2px 7px;
+					border-radius: 4px;
 					font-size: 11px;
+				}
+				.mcp-btn-submit {
+					background: #98825b !important;
+					border-color: #7a6845 !important;
+					color: #ffffff !important;
+					padding: 6px 20px !important;
+					font-weight: 600 !important;
+					border-radius: 4px !important;
+					box-shadow: none !important;
+				}
+				.mcp-btn-submit:hover {
+					background: #7a6845 !important;
 				}
 			</style>
 
@@ -438,7 +455,7 @@ trait WP_MCP_Bridge_Admin {
 						</div>
 
 						<div style="margin-top: 15px;">
-							<?php submit_button( __( 'Guardar Configuración', 'wp-mcp-agent-bridge' ), 'primary', 'submit', false, array( 'style' => 'padding: 6px 20px; font-weight: 600;' ) ); ?>
+							<?php submit_button( __( 'Guardar Configuración', 'wp-mcp-agent-bridge' ), 'primary', 'submit', false, array( 'class' => 'button button-primary mcp-btn-submit' ) ); ?>
 						</div>
 					</form>
 				</div>

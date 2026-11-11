@@ -643,139 +643,251 @@ final class WP_LLMs_Txt_Manager {
 		$url_llms_live = home_url( '/llms.txt' );
 		$url_full_live = home_url( '/llms-full.txt' );
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Gestor de LLMs.txt', 'wp-llms-txt' ); ?></h1>
-			<p class="description">
-				<?php esc_html_e( 'Administra y publica el archivo estandarizado llms.txt para guiar a los modelos de inteligencia artificial y crawlers sobre la estructura y contenido relevante de tu sitio.', 'wp-llms-txt' ); ?>
-			</p>
+		<div class="wrap llms-wrap">
+			<style>
+				.llms-wrap {
+					max-width: 1100px;
+					margin: 20px auto 40px;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+				}
+				.llms-header {
+					background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
+					border-top: 4px solid #98825b;
+					color: #ffffff;
+					padding: 24px 30px;
+					border-radius: 8px 8px 0 0;
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					flex-wrap: wrap;
+					gap: 15px;
+				}
+				.llms-header h1 {
+					color: #ffffff;
+					margin: 0;
+					font-size: 22px;
+					font-weight: 700;
+					display: flex;
+					align-items: center;
+					gap: 12px;
+				}
+				.llms-badge {
+					background: #98825b;
+					color: #ffffff;
+					font-size: 11px;
+					padding: 3px 8px;
+					border-radius: 12px;
+					font-weight: 600;
+					letter-spacing: 0.5px;
+					text-transform: uppercase;
+				}
+				.llms-pill {
+					background: rgba(255, 255, 255, 0.1);
+					border: 1px solid rgba(255, 255, 255, 0.15);
+					padding: 8px 16px;
+					border-radius: 20px;
+					font-size: 13px;
+					color: #ffffff;
+				}
+				.llms-pill strong {
+					color: #cedded;
+				}
+				.llms-content {
+					background: #ede2ce;
+					border: 1px solid #d5c8b2;
+					border-top: none;
+					padding: 24px 28px;
+					border-radius: 0 0 8px 8px;
+				}
+				.llms-card {
+					background: #ffffff;
+					border: 1px solid #d5c8b2;
+					border-radius: 6px;
+					padding: 20px 24px;
+					box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+					margin-bottom: 20px;
+				}
+				.llms-card:last-child {
+					margin-bottom: 0;
+				}
+				.llms-card-title {
+					margin: 0 0 14px;
+					padding-bottom: 8px;
+					border-bottom: 2px solid #edd1c1;
+					font-size: 16px;
+					font-weight: 600;
+					color: #1d2327;
+				}
+				.llms-btn-primary {
+					background: #98825b !important;
+					border-color: #7a6845 !important;
+					color: #ffffff !important;
+					font-weight: 600 !important;
+					border-radius: 4px !important;
+					padding: 6px 18px !important;
+					box-shadow: none !important;
+				}
+				.llms-btn-primary:hover {
+					background: #7a6845 !important;
+				}
+				.llms-btn-secondary {
+					background: #fdfaf6 !important;
+					border-color: #d5c8b2 !important;
+					color: #50575e !important;
+					font-weight: 600 !important;
+				}
+				.llms-btn-secondary:hover {
+					background: #edd1c1 !important;
+					border-color: #98825b !important;
+					color: #1d2327 !important;
+				}
+			</style>
 
-			<?php settings_errors( 'wp_llms_txt_messages' ); ?>
+			<div class="llms-header">
+				<div>
+					<h1>
+						<span>🤖 <?php esc_html_e( 'Gestor de LLMs.txt', 'wp-llms-txt' ); ?></span>
+						<span class="llms-badge">v<?php echo esc_html( self::VERSION ); ?></span>
+					</h1>
+					<p style="margin: 6px 0 0; color: #c3c4c7; font-size: 13px;">
+						<?php esc_html_e( 'Publica y administra archivos estandarizados llms.txt para motores de inteligencia artificial y crawlers semánticos.', 'wp-llms-txt' ); ?>
+					</p>
+				</div>
+				<div class="llms-pill">
+					<span>Endpoint:</span> <strong>/llms.txt</strong>
+				</div>
+			</div>
 
-			<?php $foreign_files = $this->get_foreign_physical_files(); ?>
-			<?php if ( ! empty( $foreign_files ) ) : ?>
-				<form method="post" action="">
-					<?php wp_nonce_field( 'wp_llms_txt_save_action', 'wp_llms_txt_nonce' ); ?>
-					<div class="notice notice-warning inline" style="padding: 12px 15px; margin-top: 15px;">
-						<p>
-							<strong><?php esc_html_e( 'Hay archivos físicos en la raíz que este plugin no creó.', 'wp-llms-txt' ); ?></strong>
-							<?php esc_html_e( 'Mientras existan, el servidor los entrega directamente y lo que escribas aquí no se verá en esa URL.', 'wp-llms-txt' ); ?>
-						</p>
-						<p>
-							<?php esc_html_e( 'Pasos: 1) importa el contenido al editor, 2) pulsa «Guardar Cambios», 3) borra el archivo del hosting. Importar no borra ni modifica el archivo.', 'wp-llms-txt' ); ?>
-						</p>
-						<p>
-							<?php foreach ( $foreign_files as $foreign_name => $foreign_size ) : ?>
-								<button type="submit" name="wp_llms_txt_import" value="<?php echo esc_attr( $foreign_name ); ?>" class="button button-secondary" onclick="return confirm('<?php echo esc_js( __( 'Esto reemplazará el contenido actual del editor correspondiente. ¿Continuar?', 'wp-llms-txt' ) ); ?>');">
-									<?php
-									echo esc_html(
-										sprintf(
-											/* translators: 1: nombre de archivo, 2: tamaño legible */
-											__( 'Importar %1$s al editor (%2$s)', 'wp-llms-txt' ),
-											$foreign_name,
-											size_format( $foreign_size )
-										)
-									);
-									?>
-								</button>
-							<?php endforeach; ?>
-						</p>
-					</div>
-				</form>
-			<?php endif; ?>
+			<div class="llms-content">
+				<?php settings_errors( 'wp_llms_txt_messages' ); ?>
 
-			<div style="display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
-				<!-- Columna Principal -->
-				<div style="flex: 1 1 650px; min-width: 320px;">
+				<?php $foreign_files = $this->get_foreign_physical_files(); ?>
+				<?php if ( ! empty( $foreign_files ) ) : ?>
 					<form method="post" action="">
 						<?php wp_nonce_field( 'wp_llms_txt_save_action', 'wp_llms_txt_nonce' ); ?>
-
-						<div class="postbox" style="padding: 15px 20px; background: #fff; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
-							<h2><?php esc_html_e( 'Contenido de llms.txt', 'wp-llms-txt' ); ?></h2>
-							<p class="description">
-								<?php esc_html_e( 'Sintaxis Markdown estándar (título con #, descripción breve con >, enlaces en viñetas).', 'wp-llms-txt' ); ?>
+						<div class="notice notice-warning inline" style="padding: 12px 15px; margin-bottom: 20px; border-left-color: #98825b;">
+							<p>
+								<strong><?php esc_html_e( 'Hay archivos físicos en la raíz que este plugin no creó.', 'wp-llms-txt' ); ?></strong>
+								<?php esc_html_e( 'Mientras existan, el servidor los entrega directamente y lo que escribas aquí no se verá en esa URL.', 'wp-llms-txt' ); ?>
 							</p>
-							<textarea 
-								name="llms_txt" 
-								id="llms_txt" 
-								rows="16" 
-								style="width: 100%; font-family: Consolas, Monaco, monospace; font-size: 13px; line-height: 1.5; padding: 10px;"><?php echo esc_textarea( $this->get_llms_txt() ); ?></textarea>
+							<p>
+								<?php esc_html_e( 'Pasos: 1) importa el contenido al editor, 2) pulsa «Guardar Cambios», 3) borra el archivo del hosting. Importar no borra ni modifica el archivo.', 'wp-llms-txt' ); ?>
+							</p>
+							<p>
+								<?php foreach ( $foreign_files as $foreign_name => $foreign_size ) : ?>
+									<button type="submit" name="wp_llms_txt_import" value="<?php echo esc_attr( $foreign_name ); ?>" class="button llms-btn-secondary" onclick="return confirm('<?php echo esc_js( __( 'Esto reemplazará el contenido actual del editor correspondiente. ¿Continuar?', 'wp-llms-txt' ) ); ?>');">
+										<?php
+										echo esc_html(
+											sprintf(
+												/* translators: 1: nombre de archivo, 2: tamaño legible */
+												__( 'Importar %1$s al editor (%2$s)', 'wp-llms-txt' ),
+												$foreign_name,
+												size_format( $foreign_size )
+											)
+										);
+										?>
+									</button>
+								<?php endforeach; ?>
+							</p>
+						</div>
+					</form>
+				<?php endif; ?>
 
-							<p style="margin-top: 10px;">
-								<button type="submit" name="wp_llms_txt_generate_draft" value="1" class="button button-secondary" onclick="return confirm('¿Deseas autogenerar un borrador? Esto reemplazará el contenido actual del editor con la información pública del sitio.');">
-									<?php esc_html_e( '⚡ Autogenerar borrador desde el contenido del sitio', 'wp-llms-txt' ); ?>
+				<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+					<!-- Columna Principal -->
+					<div style="flex: 1 1 650px; min-width: 320px;">
+						<form method="post" action="">
+							<?php wp_nonce_field( 'wp_llms_txt_save_action', 'wp_llms_txt_nonce' ); ?>
+
+							<div class="llms-card">
+								<h2 class="llms-card-title"><?php esc_html_e( 'Contenido de llms.txt', 'wp-llms-txt' ); ?></h2>
+								<p class="description">
+									<?php esc_html_e( 'Sintaxis Markdown estándar (título con #, descripción breve con >, enlaces en viñetas).', 'wp-llms-txt' ); ?>
+								</p>
+								<textarea 
+									name="llms_txt" 
+									id="llms_txt" 
+									rows="16" 
+									style="width: 100%; font-family: Consolas, Monaco, monospace; font-size: 13px; line-height: 1.5; padding: 10px; border: 1px solid #d5c8b2; border-radius: 4px;"><?php echo esc_textarea( $this->get_llms_txt() ); ?></textarea>
+
+								<p style="margin-top: 12px;">
+									<button type="submit" name="wp_llms_txt_generate_draft" value="1" class="button llms-btn-secondary" onclick="return confirm('¿Deseas autogenerar un borrador? Esto reemplazará el contenido actual del editor con la información pública del sitio.');">
+										<?php esc_html_e( '⚡ Autogenerar borrador desde el contenido del sitio', 'wp-llms-txt' ); ?>
+									</button>
+								</p>
+							</div>
+
+							<div class="llms-card">
+								<h2 class="llms-card-title"><?php esc_html_e( 'Contenido de llms-full.txt (Extendido)', 'wp-llms-txt' ); ?></h2>
+								<p class="description">
+									<?php esc_html_e( 'Opcional. Contiene el contexto completo, documentación detallada o listado exhaustivo de recursos.', 'wp-llms-txt' ); ?>
+								</p>
+
+								<p>
+									<label>
+										<input type="checkbox" name="enable_full_txt" value="1" <?php checked( ! empty( $this->options['enable_full_txt'] ) ); ?>>
+										<strong><?php esc_html_e( 'Habilitar endpoint /llms-full.txt', 'wp-llms-txt' ); ?></strong>
+									</label>
+								</p>
+
+								<textarea 
+									name="llms_full_txt" 
+									id="llms_full_txt" 
+									rows="12" 
+									style="width: 100%; font-family: Consolas, Monaco, monospace; font-size: 13px; line-height: 1.5; padding: 10px; border: 1px solid #d5c8b2; border-radius: 4px;"><?php echo esc_textarea( $this->options['llms_full_txt'] ); ?></textarea>
+							</div>
+
+							<div class="llms-card">
+								<h2 class="llms-card-title"><?php esc_html_e( 'Opciones de Entrega', 'wp-llms-txt' ); ?></h2>
+								<label>
+									<input type="checkbox" name="sync_physical_file" value="1" <?php checked( ! empty( $this->options['sync_physical_file'] ) ); ?>>
+									<?php esc_html_e( 'Generar además archivo físico estático en la raíz (si los permisos del servidor lo permiten).', 'wp-llms-txt' ); ?>
+								</label>
+								<p class="description" style="margin-left: 24px;">
+									<?php esc_html_e( 'Por defecto el plugin sirve /llms.txt de forma virtual inmediata sin necesidad de tocar archivos físicos.', 'wp-llms-txt' ); ?>
+								</p>
+							</div>
+
+							<p class="submit">
+								<button type="submit" name="wp_llms_txt_submit" class="button button-primary llms-btn-primary">
+									<?php esc_html_e( 'Guardar Cambios', 'wp-llms-txt' ); ?>
 								</button>
 							</p>
-						</div>
-
-						<div class="postbox" style="padding: 15px 20px; background: #fff; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04); margin-top: 20px;">
-							<h2><?php esc_html_e( 'Contenido de llms-full.txt (Extendido)', 'wp-llms-txt' ); ?></h2>
-							<p class="description">
-								<?php esc_html_e( 'Opcional. Contiene el contexto completo, documentación detallada o listado exhaustivo de recursos.', 'wp-llms-txt' ); ?>
-							</p>
-
-							<p>
-								<label>
-									<input type="checkbox" name="enable_full_txt" value="1" <?php checked( ! empty( $this->options['enable_full_txt'] ) ); ?>>
-									<strong><?php esc_html_e( 'Habilitar endpoint /llms-full.txt', 'wp-llms-txt' ); ?></strong>
-								</label>
-							</p>
-
-							<textarea 
-								name="llms_full_txt" 
-								id="llms_full_txt" 
-								rows="12" 
-								style="width: 100%; font-family: Consolas, Monaco, monospace; font-size: 13px; line-height: 1.5; padding: 10px;"><?php echo esc_textarea( $this->options['llms_full_txt'] ); ?></textarea>
-						</div>
-
-						<div class="postbox" style="padding: 15px 20px; background: #fff; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04); margin-top: 20px;">
-							<h2><?php esc_html_e( 'Opciones de Entrega', 'wp-llms-txt' ); ?></h2>
-							<label>
-								<input type="checkbox" name="sync_physical_file" value="1" <?php checked( ! empty( $this->options['sync_physical_file'] ) ); ?>>
-								<?php esc_html_e( 'Generar además archivo físico estático en la raíz (si los permisos del servidor lo permiten).', 'wp-llms-txt' ); ?>
-							</label>
-							<p class="description" style="margin-left: 24px;">
-								<?php esc_html_e( 'Por defecto el plugin sirve /llms.txt de forma virtual inmediata sin necesidad de tocar archivos físicos.', 'wp-llms-txt' ); ?>
-							</p>
-						</div>
-
-						<p class="submit">
-							<input type="submit" name="wp_llms_txt_submit" id="submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Guardar Cambios', 'wp-llms-txt' ); ?>">
-						</p>
-					</form>
-				</div>
-
-				<!-- Barra Lateral Informativa -->
-				<div style="flex: 0 0 320px;">
-					<div class="postbox" style="padding: 15px 20px; background: #fff; border: 1px solid #ccd0d4;">
-						<h3 style="margin-top: 0;"><?php esc_html_e( 'Verificación en Vivo', 'wp-llms-txt' ); ?></h3>
-						<ul style="line-height: 1.8;">
-							<li>
-								📄 <strong>llms.txt:</strong><br>
-								<a href="<?php echo esc_url( $url_llms_live ); ?>" target="_blank" rel="noopener noreferrer">
-									<?php echo esc_html( $url_llms_live ); ?> ↗
-								</a>
-							</li>
-							<li style="margin-top: 10px;">
-								📚 <strong>llms-full.txt:</strong><br>
-								<a href="<?php echo esc_url( $url_full_live ); ?>" target="_blank" rel="noopener noreferrer">
-									<?php echo esc_html( $url_full_live ); ?> ↗
-								</a>
-							</li>
-						</ul>
+						</form>
 					</div>
 
-					<div class="postbox" style="padding: 15px 20px; background: #fff; border: 1px solid #ccd0d4; margin-top: 20px;">
-						<h3 style="margin-top: 0;"><?php esc_html_e( 'Estándar llmstxt.org', 'wp-llms-txt' ); ?></h3>
-						<p style="font-size: 13px; color: #555;">
-							Un archivo <code>llms.txt</code> es un documento Markdown diseñado para que los modelos de lenguaje encuentren fácilmente información clave y enlaces canónicos.
-						</p>
-						<p style="font-size: 12px; color: #666;">
-							Estructura recomendada:<br>
-							<code># Nombre del Proyecto</code><br>
-							<code>> Breve resumen explicativo</code><br>
-							<code>## Sección</code><br>
-							<code>- [Título](URL): Descripción opcional</code>
-						</p>
+					<!-- Columna Lateral Informativa -->
+					<div style="flex: 0 1 340px;">
+						<div class="llms-card">
+							<h3 class="llms-card-title"><?php esc_html_e( 'Estado de Publicación', 'wp-llms-txt' ); ?></h3>
+							<p>
+								<strong><?php esc_html_e( 'URL Primaria:', 'wp-llms-txt' ); ?></strong><br>
+								<a href="<?php echo esc_url( $url_llms_live ); ?>" target="_blank" style="word-break: break-all; color: #98825b; font-weight: 600;">
+									<?php echo esc_html( $url_llms_live ); ?> ↗
+								</a>
+							</p>
+
+							<?php if ( ! empty( $this->options['enable_full_txt'] ) ) : ?>
+								<p>
+									<strong><?php esc_html_e( 'URL Extendida:', 'wp-llms-txt' ); ?></strong><br>
+									<a href="<?php echo esc_url( $url_full_live ); ?>" target="_blank" style="word-break: break-all; color: #98825b; font-weight: 600;">
+										<?php echo esc_html( $url_full_live ); ?> ↗
+									</a>
+								</p>
+							<?php endif; ?>
+						</div>
+
+						<div class="llms-card">
+							<h3 class="llms-card-title"><?php esc_html_e( 'Estándar llmstxt.org', 'wp-llms-txt' ); ?></h3>
+							<p style="font-size: 13px; color: #50575e; line-height: 1.5;">
+								<?php esc_html_e( 'El archivo llms.txt es una propuesta estándar abierta para que modelos de lenguaje masivo comprendan la información clave de tu sitio de manera eficiente y sintetizada.', 'wp-llms-txt' ); ?>
+							</p>
+							<p>
+								<a href="https://llmstxt.org" target="_blank" class="button llms-btn-secondary" style="font-size: 12px;">
+									<?php esc_html_e( 'Documentación Oficial ↗', 'wp-llms-txt' ); ?>
+								</a>
+							</p>
+						</div>
 					</div>
 				</div>
 			</div>
