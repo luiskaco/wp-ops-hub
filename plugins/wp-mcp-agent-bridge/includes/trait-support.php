@@ -110,6 +110,72 @@ trait WP_MCP_Bridge_Support {
 	}
 
 	/**
+	 * Valida los argumentos recibidos contra el inputSchema de la herramienta.
+	 *
+	 * @param array $args   Argumentos enviados por el cliente.
+	 * @param array $schema Esquema JSON Schema de la herramienta.
+	 * @return true|WP_Error
+	 */
+	public static function validate_tool_arguments( $args, $schema ) {
+		if ( ! is_array( $args ) ) {
+			return self::mcp_error( 'invalid_arguments', __( 'Los argumentos deben ser un objeto JSON válido.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		$properties = isset( $schema['properties'] ) ? (array) $schema['properties'] : array();
+		$required   = isset( $schema['required'] ) && is_array( $schema['required'] ) ? $schema['required'] : array();
+
+		if ( ! empty( $schema['additionalProperties'] ) === false ) {
+			foreach ( array_keys( $args ) as $key ) {
+				if ( ! array_key_exists( $key, $properties ) ) {
+					return self::mcp_error( 'unexpected_argument', sprintf( __( 'Parámetro no permitido: %s', 'wp-mcp-agent-bridge' ), sanitize_key( $key ) ) );
+				}
+			}
+		}
+
+		foreach ( $required as $req_key ) {
+			if ( ! array_key_exists( $req_key, $args ) || null === $args[ $req_key ] ) {
+				return self::mcp_error( 'missing_argument', sprintf( __( 'Falta el parámetro requerido: %s', 'wp-mcp-agent-bridge' ), $req_key ) );
+			}
+		}
+
+		foreach ( $args as $key => $value ) {
+			if ( ! isset( $properties[ $key ] ) || ! is_array( $properties[ $key ] ) ) {
+				continue;
+			}
+			$prop = $properties[ $key ];
+			$type = isset( $prop['type'] ) ? $prop['type'] : '';
+
+			if ( 'string' === $type ) {
+				if ( ! is_string( $value ) ) {
+					return self::mcp_error( 'invalid_type', sprintf( __( 'El parámetro %s debe ser de tipo string.', 'wp-mcp-agent-bridge' ), $key ) );
+				}
+				if ( ! empty( $prop['maxLength'] ) && strlen( $value ) > (int) $prop['maxLength'] ) {
+					return self::mcp_error( 'max_length_exceeded', sprintf( __( 'El parámetro %s excede la longitud máxima (%d).', 'wp-mcp-agent-bridge' ), $key, (int) $prop['maxLength'] ) );
+				}
+			} elseif ( 'integer' === $type ) {
+				if ( ! is_int( $value ) && ! ( is_numeric( $value ) && (string) (int) $value === (string) $value ) ) {
+					return self::mcp_error( 'invalid_type', sprintf( __( 'El parámetro %s debe ser un entero.', 'wp-mcp-agent-bridge' ), $key ) );
+				}
+				$int_val = (int) $value;
+				if ( isset( $prop['minimum'] ) && $int_val < (int) $prop['minimum'] ) {
+					return self::mcp_error( 'below_minimum', sprintf( __( 'El parámetro %s debe ser >= %d.', 'wp-mcp-agent-bridge' ), $key, (int) $prop['minimum'] ) );
+				}
+				if ( isset( $prop['maximum'] ) && $int_val > (int) $prop['maximum'] ) {
+					return self::mcp_error( 'above_maximum', sprintf( __( 'El parámetro %s debe ser <= %d.', 'wp-mcp-agent-bridge' ), $key, (int) $prop['maximum'] ) );
+				}
+			} elseif ( 'boolean' === $type ) {
+				if ( ! is_bool( $value ) ) {
+					return self::mcp_error( 'invalid_type', sprintf( __( 'El parámetro %s debe ser booleano.', 'wp-mcp-agent-bridge' ), $key ) );
+				}
+			} elseif ( 'array' === $type && ! is_array( $value ) ) {
+				return self::mcp_error( 'invalid_type', sprintf( __( 'El parámetro %s debe ser un arreglo.', 'wp-mcp-agent-bridge' ), $key ) );
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Sanitiza y limita el número de resultados paginados.
 	 *
 	 * @param mixed $value

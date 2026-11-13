@@ -66,11 +66,3 @@ plugins/wp-assets-pulse/
 │   └── trait-admin.php           # Panel con paleta visual unificada
 └── uninstall.php                 # Limpieza limpia de wp_options
 ```
-
----
-
-## 5. Historial de Cambios
-
-| Versión | Cambios |
-|---------|---------|
-| **1.0.0** | Versión inicial documentada y planificada: debloat de emojis/bloques, script deferring configurable y resource hints preconnect. |

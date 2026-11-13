@@ -31,7 +31,7 @@ Añade lo siguiente a tu archivo de configuración MCP (`.cursor/mcp.json` o `cl
 {
   "mcpServers": {
     "mi-wordpress": {
-      "url": "https://tusitio.com/wp-json/mcp/v1",
+      "url": "https://tusitio.com/wp-json/mcp/v1/rpc",
       "headers": {
         "Authorization": "Basic <BASE64_DE_USUARIO_Y_PASSWORD>"
       }

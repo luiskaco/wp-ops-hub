@@ -116,7 +116,11 @@ trait WP_MCP_Bridge_Tools_SEO {
 		$post    = get_post( $post_id );
 
 		if ( ! $post ) {
-			return self::mcp_error( 'post_not_found', 'Publicación no encontrada.' );
+			return self::mcp_error( 'post_not_found', __( 'Publicación no encontrada.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! current_user_can( 'read_post', $post_id ) || ( 'publish' !== $post->post_status && ! current_user_can( 'edit_post', $post_id ) ) ) {
+			return self::mcp_error( 'forbidden', __( 'No tienes permisos para consultar esta publicación.', 'wp-mcp-agent-bridge' ), 403 );
 		}
 
 		$plugin = self::detect_seo_plugin();
@@ -140,7 +144,11 @@ trait WP_MCP_Bridge_Tools_SEO {
 		$post    = get_post( $post_id );
 
 		if ( ! $post ) {
-			return self::mcp_error( 'post_not_found', 'Publicación no encontrada.' );
+			return self::mcp_error( 'post_not_found', __( 'Publicación no encontrada.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return self::mcp_error( 'forbidden', __( 'No tienes permisos para editar los metadatos SEO de esta publicación.', 'wp-mcp-agent-bridge' ), 403 );
 		}
 
 		$plugin = self::detect_seo_plugin();
@@ -159,14 +167,22 @@ trait WP_MCP_Bridge_Tools_SEO {
 			update_post_meta( $post_id, $fields['canonical'], esc_url_raw( $args['canonical'] ) );
 		}
 		if ( isset( $args['noindex'] ) && isset( $fields['noindex'] ) ) {
-			$noindex_val = $args['noindex'] ? '1' : '0';
-			update_post_meta( $post_id, $fields['noindex'], $noindex_val );
+			if ( 'rankmath' === $plugin['slug'] ) {
+				$robots = get_post_meta( $post_id, $fields['noindex'], true );
+				$robots = is_array( $robots ) ? $robots : array();
+				$robots = array_values( array_diff( $robots, array( 'index', 'noindex' ) ) );
+				$robots[] = $args['noindex'] ? 'noindex' : 'index';
+				update_post_meta( $post_id, $fields['noindex'], $robots );
+			} else {
+				$noindex_val = $args['noindex'] ? '1' : '0';
+				update_post_meta( $post_id, $fields['noindex'], $noindex_val );
+			}
 		}
 
 		return array(
 			'post_id' => $post_id,
 			'plugin'  => $plugin['label'],
-			'message' => 'Metadatos de SEO actualizados exitosamente.',
+			'message' => __( 'Metadatos de SEO actualizados exitosamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 }

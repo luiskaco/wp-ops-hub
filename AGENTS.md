@@ -27,7 +27,7 @@ uno; lo de acá vale para todos.
 - `docs/` — una guía técnica por plugin y `DEVELOPMENT.md` (cómo agregar y publicar).
 - El núcleo de WordPress, `wp-content/` y `wp-config.php` de la raíz no se versionan ni se tocan.
 
-- **Documentación:** no usa la estructura numerada de `docs/`. La documentación vive en `README.md` (catálogo de plugins), `docs/<plugin>.md` y el `README.md` de cada plugin. **Ante cualquier cambio grande** (función nueva, cambio de comportamiento, corrección de seguridad, algo eliminado) se actualizan, antes de publicar: el README del plugin, `docs/<plugin>.md` con su tabla *Historial de cambios*, el catálogo del README raíz y la versión (cabecera y constante). Detalle en `docs/DEVELOPMENT.md`.
+- **Documentación:** el seguimiento general del proyecto vive en `docs/01_PRD.md`, `docs/02_TASKS.md`, `docs/03_DECISIONS.md` y `docs/04_CHANGELOG.md`; la referencia técnica específica de cada plugin vive en `docs/<plugin>.md`, `README.md` (catálogo) y el `README.md` de cada plugin. **Ante cualquier cambio grande** (función nueva, cambio de comportamiento, corrección de seguridad, algo eliminado) se actualizan, antes de publicar: `docs/04_CHANGELOG.md`, `docs/02_TASKS.md`, el README del plugin, la guía técnica `docs/<plugin>.md`, el catálogo del README raíz y la versión (cabecera y constante). Detalle en `docs/DEVELOPMENT.md`.
 
 ## No negociable
 

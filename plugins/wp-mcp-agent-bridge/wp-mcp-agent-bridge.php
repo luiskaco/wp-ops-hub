@@ -3,7 +3,7 @@
  * Plugin Name:       WP MCP Agent Bridge
  * Plugin URI:        https://github.com/luiskaco/utilities_wordpress
  * Description:       Servidor nativo Model Context Protocol (MCP) para conectar asistentes de IA (Cursor, Antigravity, Claude Desktop) con WordPress, WooCommerce, Medios (URL y Base64), SEO y Caché.
- * Version:           1.0.0
+ * Version:           1.0.2
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            WordPress AI Utilities
@@ -19,6 +19,7 @@ if ( ! defined( 'WP_MCP_AGENT_BRIDGE_FILE' ) ) {
 
 // Carga de módulos estructurados por traits
 require_once __DIR__ . '/includes/trait-support.php';
+require_once __DIR__ . '/includes/trait-updater.php';
 require_once __DIR__ . '/includes/trait-auth.php';
 require_once __DIR__ . '/includes/trait-server.php';
 require_once __DIR__ . '/includes/trait-tools-core.php';
@@ -31,6 +32,7 @@ require_once __DIR__ . '/includes/trait-admin.php';
 final class WP_MCP_Agent_Bridge {
 
 	use WP_MCP_Bridge_Support,
+		WP_MCP_Bridge_Updater,
 		WP_MCP_Bridge_Auth,
 		WP_MCP_Bridge_Server,
 		WP_MCP_Bridge_Tools_Core,
@@ -43,7 +45,7 @@ final class WP_MCP_Agent_Bridge {
 	/**
 	 * Versión del plugin.
 	 */
-	public const VERSION = '1.0.0';
+	public const VERSION = '1.0.2';
 
 	/**
 	 * Clave principal de opciones en wp_options.
@@ -83,12 +85,27 @@ final class WP_MCP_Agent_Bridge {
 	 * Constructor privado.
 	 */
 	private function __construct() {
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_textdomain' ) );
+		self::init_update_checker();
 		self::init_auth();
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 
 		if ( is_admin() ) {
 			self::init_admin();
 		}
+	}
+
+	/**
+	 * Carga el dominio de traducción del plugin.
+	 *
+	 * @return void
+	 */
+	public static function load_textdomain() {
+		load_plugin_textdomain(
+			'wp-mcp-agent-bridge',
+			false,
+			dirname( plugin_basename( WP_MCP_AGENT_BRIDGE_FILE ) ) . '/languages'
+		);
 	}
 
 	/**

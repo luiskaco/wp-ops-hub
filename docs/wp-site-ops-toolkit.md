@@ -97,11 +97,3 @@ Todas las preferencias se guardan en un único registro serializado:
   )
   ```
 - **Clave independiente para logs de correo:** `wp_site_ops_mail_log` (array con un máximo de 50 elementos, `autoload = false`).
-
----
-
-## 5. Historial de Cambios
-
-| Versión | Cambios |
-|---------|---------|
-| **1.0.0** | Versión inicial de la suite. Módulos: Modo mantenimiento con bypass por IP/cookie, optimizador de base de datos en 1 clic y depurador/blackhole de `wp_mail`. |

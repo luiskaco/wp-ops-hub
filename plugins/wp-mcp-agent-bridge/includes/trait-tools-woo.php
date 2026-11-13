@@ -212,7 +212,7 @@ trait WP_MCP_Bridge_Tools_Woo {
 		$product = wc_get_product( $id );
 
 		if ( ! $product ) {
-			return self::mcp_error( 'product_not_found', 'Producto de WooCommerce no encontrado.' );
+			return self::mcp_error( 'product_not_found', __( 'Producto de WooCommerce no encontrado.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		return array(
@@ -242,7 +242,7 @@ trait WP_MCP_Bridge_Tools_Woo {
 	public static function tool_woo_create_product( $args ) {
 		$name = isset( $args['name'] ) ? sanitize_text_field( $args['name'] ) : '';
 		if ( '' === $name ) {
-			return self::mcp_error( 'missing_name', 'El nombre del producto es obligatorio.' );
+			return self::mcp_error( 'missing_name', __( 'El nombre del producto es obligatorio.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		$product = new WC_Product_Simple();
@@ -255,7 +255,8 @@ trait WP_MCP_Bridge_Tools_Woo {
 			$product->set_sale_price( wc_format_decimal( $args['sale_price'] ) );
 		}
 		if ( isset( $args['description'] ) ) {
-			$product->set_description( (string) $args['description'] );
+			$raw_desc = (string) $args['description'];
+			$product->set_description( current_user_can( 'unfiltered_html' ) ? $raw_desc : wp_kses_post( $raw_desc ) );
 		}
 		if ( isset( $args['short_desc'] ) ) {
 			$product->set_short_description( sanitize_textarea_field( $args['short_desc'] ) );
@@ -284,7 +285,7 @@ trait WP_MCP_Bridge_Tools_Woo {
 			'price'   => $product->get_price(),
 			'status'  => $product->get_status(),
 			'url'     => $product->get_permalink(),
-			'message' => 'Producto de WooCommerce creado exitosamente.',
+			'message' => __( 'Producto de WooCommerce creado exitosamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -296,7 +297,7 @@ trait WP_MCP_Bridge_Tools_Woo {
 		$product = wc_get_product( $id );
 
 		if ( ! $product ) {
-			return self::mcp_error( 'product_not_found', 'Producto de WooCommerce no encontrado.' );
+			return self::mcp_error( 'product_not_found', __( 'Producto de WooCommerce no encontrado.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		if ( isset( $args['name'] ) ) {
@@ -327,7 +328,7 @@ trait WP_MCP_Bridge_Tools_Woo {
 			'price'   => $product->get_price(),
 			'status'  => $product->get_status(),
 			'url'     => $product->get_permalink(),
-			'message' => 'Producto de WooCommerce actualizado.',
+			'message' => __( 'Producto de WooCommerce actualizado.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -378,7 +379,7 @@ trait WP_MCP_Bridge_Tools_Woo {
 		$order = wc_get_order( $id );
 
 		if ( ! $order ) {
-			return self::mcp_error( 'order_not_found', 'Pedido de WooCommerce no encontrado.' );
+			return self::mcp_error( 'order_not_found', __( 'Pedido de WooCommerce no encontrado.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		$items = array();
@@ -421,7 +422,13 @@ trait WP_MCP_Bridge_Tools_Woo {
 
 		$order = wc_get_order( $id );
 		if ( ! $order ) {
-			return self::mcp_error( 'order_not_found', 'Pedido de WooCommerce no encontrado.' );
+			return self::mcp_error( 'order_not_found', __( 'Pedido de WooCommerce no encontrado.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		$valid_statuses = wc_get_order_statuses();
+		$normalized     = 0 === strpos( $status, 'wc-' ) ? $status : 'wc-' . $status;
+		if ( ! array_key_exists( $normalized, $valid_statuses ) ) {
+			return self::mcp_error( 'invalid_order_status', __( 'El estado de pedido especificado no es válido.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		$order->update_status( $status, $note );
@@ -429,7 +436,7 @@ trait WP_MCP_Bridge_Tools_Woo {
 		return array(
 			'id'      => $id,
 			'status'  => $order->get_status(),
-			'message' => 'Estado de pedido actualizado correctamente.',
+			'message' => __( 'Estado de pedido actualizado correctamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 }

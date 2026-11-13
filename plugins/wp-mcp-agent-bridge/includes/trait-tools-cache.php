@@ -108,14 +108,14 @@ trait WP_MCP_Bridge_Tools_Cache {
 		if ( empty( $purged ) ) {
 			return array(
 				'purged'  => false,
-				'message' => 'No se detectó ningún plugin de caché activo soportado.',
+				'message' => __( 'No se detectó ningún plugin de caché activo soportado.', 'wp-mcp-agent-bridge' ),
 			);
 		}
 
 		return array(
 			'purged'   => true,
 			'systems'  => $purged,
-			'message'  => 'Caché purgada exitosamente.',
+			'message'  => __( 'Caché purgada exitosamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 }

@@ -280,26 +280,7 @@ Notas de comportamiento:
 
 ---
 
-## 6. Historial de cambios
-
-| Versión | Cambios |
-|---------|---------|
-| **1.8.0** | Dos opciones nuevas, **ambas desactivadas por defecto**. (1) Bloqueo temporal de la IP que hace 5 escaneos `?author=` en 10 minutos: 403 en todo el sitio durante 1 hora, con un evento en el registro; no afecta a usuarios con sesión ni a IP privadas; el panel avisa si detecta un proxy o CDN sin la IP real configurada. (2) País y bandera de cada IP en el registro de eventos, con tabla Top 5 de IP bloqueadas (consulta a `ipwho.is`, banderas de `flagcdn.com`). Filtros `essential_hardening_recon_ban_threshold`, `..._recon_ban_duration` e `..._ip_country`. 21 pruebas nuevas (134 en total). |
-| **1.7.1** | Reorganización interna sin cambios de comportamiento: la clase única de unas 2.900 líneas se separa en un archivo principal (unas 330 líneas) y 13 módulos en `includes/`. Verificado comparando antes y después los 70 métodos, los 49 hooks que se registran con todo activado y el HTML del panel (idénticos), y con las 97 pruebas en PHP 8.3, 8.4 y 8.5. Nueva prueba que avisa si un módulo no está incorporado a la clase. |
-| **1.7.0** | Protección de cuentas. Recuperación de contraseña limitada a 5 solicitudes por IP y hora y con la misma respuesta exista o no la cuenta (activada por defecto). Opción para desactivar las contraseñas de aplicación, que se saltan el 2FA. Opción de exigir a los administradores contraseñas de al menos 12 caracteres que no estén en filtraciones conocidas (Have I Been Pwned, k-anonimato). La anti-enumeración quita también el mapa del sitio de usuarios. Filtros `..._lostpassword_max_per_hour` y `..._admin_password_min_length`. 24 escudos en total. |
-| **1.6.0** | Alertas por correo cuando se crea un Administrador o se promueve una cuenta a ese rol (activadas por defecto). Verificación diaria opcional de la integridad del núcleo de WordPress contra las sumas de control oficiales, con botón "Verificar ahora" y resultado en el panel. Nuevos filtros `essential_hardening_core_integrity_ignore`, `..._core_root` y `..._core_checksums`. 21 escudos en total. `uninstall.php` y la desactivación limpian el cron y el informe nuevos. |
-| **1.5.0** (compatibilidad) | Declarado PHP 7.4 a 8.5. Las pruebas se ejecutaron con PHP 8.3, 8.4 y 8.5 sin avisos; la sintaxis se revisa de 7.4 a 8.5 en la integración continua. |
-| **1.5.0** | HSTS opcional (duración configurable, solo por HTTPS) y Content-Security-Policy en modo solo-reporte. Ambos vienen desactivados. 19 escudos en total. |
-| **1.4.2** | **Seguridad:** corregido un bypass del 2FA por correo (el parámetro `eh_2fa_verified` permitía saltarlo). Reglas de `.htaccess` de uploads compatibles con Apache 2.4 sin `mod_access_compat` (evita error 500) y migración automática del bloque antiguo. Límite de 5 códigos 2FA cada 10 minutos por usuario. Los fallos de 2FA cuentan para el bloqueo de IP. Los intentos durante un bloqueo ya no lo extienden. Honeypot sin retardo. Filtros `essential_hardening_client_ip`, `..._failed_login_delay`, `..._waf_patterns` y `..._waf_skip`. El Micro-WAF registra un evento por IP y minuto. Limpieza al desactivar (cron y `.htaccess`) y `uninstall.php`. `X-XSS-Protection: 0`. Pruebas automáticas en `tests/essential-hardening/`. |
-| **1.4.1** | Captura del error fatal de `wp_mail` cuando `mail()` está deshabilitada en el hosting. |
-| **1.4.0** | Alertas de login de administrador, 2FA por correo opcional y registro de eventos de seguridad. |
-| **1.3.0** | Alertas de actualizaciones pendientes por correo. |
-| **1.2.0** | Honeypot anti-bot en el login y rate limiting configurable. |
-| **1.1.x** | Nuevos escudos (Micro-WAF, protección de uploads, limpieza de `<head>`) y Plugin Update Checker. |
-
----
-
-## 7. Estructura del código
+## 6. Estructura del código
 
 `Essential_Hardening` sigue siendo **una sola clase** (`final`, patrón singleton). Desde 1.7.1 su código está repartido en *traits* de PHP, uno por módulo, que se incorporan con `use`. Para PHP es exactamente la misma clase: los métodos conservan nombre, visibilidad y firma, y los hooks apuntan a los mismos callbacks.
 

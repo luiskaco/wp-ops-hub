@@ -26,7 +26,7 @@ trait WP_MCP_Bridge_Server {
 	public static function register_routes() {
 		register_rest_route(
 			'mcp/v1',
-			'/',
+			'/rpc',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -54,7 +54,7 @@ trait WP_MCP_Bridge_Server {
 			'name'              => 'WP MCP Agent Bridge',
 			'version'           => self::VERSION,
 			'protocol_versions' => self::protocol_versions(),
-			'endpoint'          => rest_url( 'mcp/v1' ),
+			'endpoint'          => rest_url( 'mcp/v1/rpc' ),
 			'tools_count'       => count( $tools ),
 			'user'              => wp_get_current_user()->user_login,
 		);
@@ -193,6 +193,14 @@ trait WP_MCP_Bridge_Server {
 			return self::rpc_tool_error( $id, sprintf( 'Permission denied: Requires capability %s', $tool['meta']['cap'] ) );
 		}
 
+		// Validar parámetros contra el inputSchema declarado
+		$validation = self::validate_tool_arguments( $args, $tool['schema'] );
+		if ( is_wp_error( $validation ) ) {
+			$msg = $validation->get_error_message();
+			self::log_activity( $name, false, $msg );
+			return self::rpc_error( $id, -32602, $msg );
+		}
+
 		// Ejecución segura del callback
 		try {
 			$result = call_user_func( $tool['callback'], $args );
@@ -206,10 +214,9 @@ trait WP_MCP_Bridge_Server {
 			self::log_activity( $name, true, 'Execution completed successfully.' );
 			return self::rpc_tool_success( $id, $result );
 
-		} catch ( Exception $e ) {
-			$err = $e->getMessage();
-			self::log_activity( $name, false, $err );
-			return self::rpc_tool_error( $id, sprintf( 'Internal execution error: %s', $err ) );
+		} catch ( Throwable $e ) {
+			self::log_activity( $name, false, $e->getMessage() );
+			return self::rpc_tool_error( $id, 'Internal execution error.' );
 		}
 	}
 

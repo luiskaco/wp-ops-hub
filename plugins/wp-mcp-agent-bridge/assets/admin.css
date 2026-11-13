@@ -1,0 +1,208 @@
+.mcp-wrap {
+	max-width: 1200px;
+	margin: 20px auto 40px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+.mcp-header-card {
+	background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
+	border-top: 4px solid #98825b;
+	color: #fff;
+	padding: 24px 30px;
+	border-radius: 8px 8px 0 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+.mcp-header-title {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.mcp-header-title h1 {
+	color: #fff;
+	margin: 0;
+	font-size: 22px;
+	font-weight: 700;
+}
+.mcp-badge {
+	background: #98825b;
+	color: #ffffff;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 3px 8px;
+	border-radius: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+.mcp-status-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	padding: 6px 14px;
+	border-radius: 20px;
+	font-size: 13px;
+	font-weight: 500;
+}
+.mcp-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	display: inline-block;
+}
+.mcp-dot-online { background: #46b450; box-shadow: 0 0 6px #46b450; }
+.mcp-dot-offline { background: #dc3232; }
+
+.mcp-layout {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 20px;
+	background: #ede2ce;
+	border: 1px solid #d5c8b2;
+	border-top: none;
+	padding: 24px;
+	border-radius: 0 0 8px 8px;
+}
+@media (min-width: 900px) {
+	.mcp-layout {
+		grid-template-columns: 7fr 5fr;
+	}
+}
+.mcp-box {
+	background: #ffffff;
+	border: 1px solid #d5c8b2;
+	border-radius: 6px;
+	padding: 20px 24px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+	margin-bottom: 20px;
+}
+.mcp-box:last-child {
+	margin-bottom: 0;
+}
+.mcp-box-title {
+	margin: 0 0 16px 0;
+	padding-bottom: 10px;
+	border-bottom: 2px solid #edd1c1;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1d2327;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.mcp-card-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	background: #ffffff;
+	border: 1px solid #e2dcd5;
+	border-radius: 6px;
+	padding: 12px 14px;
+	margin-bottom: 10px;
+	transition: border 0.15s, background 0.15s;
+}
+.mcp-card-item:hover {
+	background: #fdfaf6;
+	border-color: #98825b;
+}
+.mcp-card-item input[type="checkbox"] {
+	margin-top: 3px;
+	transform: scale(1.15);
+	cursor: pointer;
+}
+.mcp-card-label {
+	font-weight: 600;
+	font-size: 13.5px;
+	color: #1d2327;
+	cursor: pointer;
+	display: block;
+}
+.mcp-card-desc {
+	font-size: 12px;
+	color: #646970;
+	margin: 3px 0 0;
+	line-height: 1.4;
+}
+.mcp-tag {
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 7px;
+	border-radius: 4px;
+	background: #d0ceed;
+	color: #3f3b6c;
+	margin-left: 6px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+.mcp-copy-btn {
+	float: right;
+	background: #98825b;
+	color: #fff;
+	border: none;
+	padding: 5px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 11px;
+	font-weight: 600;
+	transition: background 0.15s;
+}
+.mcp-copy-btn:hover {
+	background: #7a6845;
+}
+.mcp-endpoint-input {
+	width: 100%;
+	font-family: monospace;
+	background: #fdfaf6;
+	border: 1px solid #d5c8b2;
+	padding: 7px 10px;
+	border-radius: 4px;
+	margin: 4px 0 12px;
+	font-size: 12.5px;
+	color: #2c3338;
+}
+.mcp-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12.5px;
+}
+.mcp-table th, .mcp-table td {
+	padding: 10px 12px;
+	text-align: left;
+	border-bottom: 1px solid #edd1c1;
+}
+.mcp-table th {
+	background: #fdfaf6;
+	font-weight: 600;
+	color: #50575e;
+}
+.mcp-badge-ok {
+	background: #e7f5ea;
+	color: #185a25;
+	font-weight: 600;
+	padding: 2px 7px;
+	border-radius: 4px;
+	font-size: 11px;
+}
+.mcp-badge-err {
+	background: #fbeae5;
+	color: #8a2414;
+	font-weight: 600;
+	padding: 2px 7px;
+	border-radius: 4px;
+	font-size: 11px;
+}
+.mcp-wrap .mcp-btn-submit {
+	background: #98825b;
+	border-color: #7a6845;
+	color: #ffffff;
+	padding: 6px 20px;
+	font-weight: 600;
+	border-radius: 4px;
+	box-shadow: none;
+}
+.mcp-wrap .mcp-btn-submit:hover {
+	background: #7a6845;
+	border-color: #665639;
+}

@@ -10,6 +10,30 @@ defined( 'ABSPATH' ) || exit;
 trait WP_MCP_Bridge_Tools_Media {
 
 	/**
+	 * Tamaño máximo permitido para subida de imágenes (10 MB).
+	 *
+	 * @return int
+	 */
+	private static function max_upload_bytes() {
+		return (int) apply_filters( 'wp_mcp_bridge_max_upload_bytes', 10 * 1024 * 1024 );
+	}
+
+	/**
+	 * Tipos MIME de imagen seguros permitidos (excluye SVG/HTML activo).
+	 *
+	 * @return array
+	 */
+	private static function allowed_image_mimes() {
+		return array(
+			'jpg|jpeg|jpe' => 'image/jpeg',
+			'png'          => 'image/png',
+			'gif'          => 'image/gif',
+			'webp'         => 'image/webp',
+			'avif'         => 'image/avif',
+		);
+	}
+
+	/**
 	 * Registra el catálogo de herramientas de medios.
 	 *
 	 * @return array
@@ -151,7 +175,7 @@ trait WP_MCP_Bridge_Tools_Media {
 		$post = get_post( $id );
 
 		if ( ! $post || 'attachment' !== $post->post_type ) {
-			return self::mcp_error( 'media_not_found', 'Archivo de medio no encontrado.' );
+			return self::mcp_error( 'media_not_found', __( 'Archivo de medio no encontrado.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		$meta = wp_get_attachment_metadata( $id );
@@ -174,7 +198,7 @@ trait WP_MCP_Bridge_Tools_Media {
 	public static function tool_upload_media_url( $args ) {
 		$url = isset( $args['url'] ) ? esc_url_raw( (string) $args['url'] ) : '';
 		if ( '' === $url || ! wp_http_validate_url( $url ) ) {
-			return self::mcp_error( 'invalid_url', 'Debe proporcionar una URL válida HTTP o HTTPS.' );
+			return self::mcp_error( 'invalid_url', __( 'Debe proporcionar una URL válida HTTP o HTTPS.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -186,10 +210,26 @@ trait WP_MCP_Bridge_Tools_Media {
 			return $tmp_file;
 		}
 
+		$max_bytes = self::max_upload_bytes();
+		if ( ! file_exists( $tmp_file ) || filesize( $tmp_file ) > $max_bytes ) {
+			wp_delete_file( $tmp_file );
+			return self::mcp_error( 'file_too_large', sprintf( __( 'El archivo supera el tamaño máximo permitido (%d MB).', 'wp-mcp-agent-bridge' ), (int) ( $max_bytes / 1048576 ) ) );
+		}
+
 		$path     = wp_parse_url( $url, PHP_URL_PATH );
 		$filename = is_string( $path ) ? sanitize_file_name( basename( $path ) ) : '';
 		if ( '' === $filename ) {
 			$filename = 'image-' . time() . '.jpg';
+		}
+
+		$checked = wp_check_filetype_and_ext( $tmp_file, $filename, self::allowed_image_mimes() );
+		if ( empty( $checked['ext'] ) || empty( $checked['type'] ) ) {
+			wp_delete_file( $tmp_file );
+			return self::mcp_error( 'disallowed_filetype', __( 'El archivo descargado no es una imagen válida permitida.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! empty( $checked['proper_filename'] ) ) {
+			$filename = $checked['proper_filename'];
 		}
 
 		$file_array = array(
@@ -222,7 +262,7 @@ trait WP_MCP_Bridge_Tools_Media {
 			'url'     => wp_get_attachment_url( $attachment_id ),
 			'title'   => get_the_title( $attachment_id ),
 			'alt'     => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
-			'message' => 'Imagen descargada e incorporada a la biblioteca de medios.',
+			'message' => __( 'Imagen descargada e incorporada a la biblioteca de medios.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -234,24 +274,39 @@ trait WP_MCP_Bridge_Tools_Media {
 		$filename = isset( $args['filename'] ) ? sanitize_file_name( (string) $args['filename'] ) : '';
 
 		if ( '' === $raw_data || '' === $filename ) {
-			return self::mcp_error( 'missing_arguments', 'Los campos base64_data y filename son obligatorios.' );
+			return self::mcp_error( 'missing_arguments', __( 'Los campos base64_data y filename son obligatorios.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		// Remover encabezado data:image/...;base64, si viene presente
 		if ( false !== strpos( $raw_data, ';base64,' ) ) {
-			$parts    = explode( ';base64,', $raw_data );
+			$parts    = explode( ';base64,', $raw_data, 2 );
 			$raw_data = $parts[1];
 		}
 
-		$binary = base64_decode( $raw_data, true );
-		if ( false === $binary ) {
-			return self::mcp_error( 'invalid_base64', 'La cadena Base64 enviada es inválida.' );
+		$max_bytes = self::max_upload_bytes();
+		if ( strlen( $raw_data ) > (int) ceil( $max_bytes * 1.37 ) ) {
+			return self::mcp_error( 'file_too_large', sprintf( __( 'El payload Base64 supera el tamaño máximo permitido (%d MB).', 'wp-mcp-agent-bridge' ), (int) ( $max_bytes / 1048576 ) ) );
 		}
 
-		// Validar extensión y tipo MIME permitido
-		$wp_filetype = wp_check_filetype( $filename, null );
+		$binary = base64_decode( $raw_data, true );
+		if ( false === $binary || '' === $binary ) {
+			return self::mcp_error( 'invalid_base64', __( 'La cadena Base64 enviada es inválida.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( strlen( $binary ) > $max_bytes ) {
+			return self::mcp_error( 'file_too_large', sprintf( __( 'El archivo decodificado supera el tamaño máximo permitido (%d MB).', 'wp-mcp-agent-bridge' ), (int) ( $max_bytes / 1048576 ) ) );
+		}
+
+		// Validar extensión y MIME permitido + firma real de imagen (magic bytes)
+		$allowed     = self::allowed_image_mimes();
+		$wp_filetype = wp_check_filetype( $filename, $allowed );
 		if ( empty( $wp_filetype['ext'] ) || empty( $wp_filetype['type'] ) ) {
-			return self::mcp_error( 'disallowed_filetype', 'Extensión de archivo no permitida.' );
+			return self::mcp_error( 'disallowed_filetype', __( 'Extensión de archivo no permitida.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		$image_info = function_exists( 'getimagesizefromstring' ) ? @getimagesizefromstring( $binary ) : false;
+		if ( ! is_array( $image_info ) || empty( $image_info['mime'] ) || ! in_array( $image_info['mime'], $allowed, true ) ) {
+			return self::mcp_error( 'invalid_image_content', __( 'El contenido binario no corresponde a una imagen válida.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		$upload = wp_upload_bits( $filename, null, $binary );
@@ -264,7 +319,7 @@ trait WP_MCP_Bridge_Tools_Media {
 		$title = isset( $args['title'] ) ? sanitize_text_field( $args['title'] ) : pathinfo( $filename, PATHINFO_FILENAME );
 
 		$attachment_data = array(
-			'post_mime_type' => $upload['type'],
+			'post_mime_type' => $image_info['mime'],
 			'post_title'     => $title,
 			'post_content'   => '',
 			'post_status'    => 'inherit',
@@ -272,6 +327,7 @@ trait WP_MCP_Bridge_Tools_Media {
 
 		$attachment_id = wp_insert_attachment( $attachment_data, $upload['file'], 0 );
 		if ( is_wp_error( $attachment_id ) ) {
+			wp_delete_file( $upload['file'] );
 			return $attachment_id;
 		}
 
@@ -286,7 +342,7 @@ trait WP_MCP_Bridge_Tools_Media {
 			'id'      => $attachment_id,
 			'url'     => $upload['url'],
 			'title'   => $title,
-			'message' => 'Imagen subida correctamente desde Base64.',
+			'message' => __( 'Imagen subida correctamente desde Base64.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -298,7 +354,11 @@ trait WP_MCP_Bridge_Tools_Media {
 		$post = get_post( $id );
 
 		if ( ! $post || 'attachment' !== $post->post_type ) {
-			return self::mcp_error( 'media_not_found', 'Medio no encontrado.' );
+			return self::mcp_error( 'media_not_found', __( 'Medio no encontrado.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $id ) ) {
+			return self::mcp_error( 'forbidden', __( 'No tienes permisos para editar este archivo de medios.', 'wp-mcp-agent-bridge' ), 403 );
 		}
 
 		if ( isset( $args['title'] ) ) {
@@ -318,7 +378,7 @@ trait WP_MCP_Bridge_Tools_Media {
 			'id'      => $id,
 			'title'   => get_the_title( $id ),
 			'alt'     => get_post_meta( $id, '_wp_attachment_image_alt', true ),
-			'message' => 'Metadatos de medio actualizados.',
+			'message' => __( 'Metadatos de medio actualizados.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 }

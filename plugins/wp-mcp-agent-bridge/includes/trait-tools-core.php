@@ -206,6 +206,15 @@ trait WP_MCP_Bridge_Tools_Core {
 			'paged'          => $page,
 		);
 
+		if ( 'publish' !== $status ) {
+			if ( ! current_user_can( 'read_private_posts' ) && ( 'private' === $status || 'any' === $status ) ) {
+				$query_args['post_status'] = 'publish';
+			}
+			if ( ! current_user_can( 'edit_others_posts' ) ) {
+				$query_args['author'] = get_current_user_id();
+			}
+		}
+
 		if ( '' !== $search ) {
 			$query_args['s'] = $search;
 		}
@@ -241,7 +250,11 @@ trait WP_MCP_Bridge_Tools_Core {
 		$post = get_post( $id );
 
 		if ( ! $post ) {
-			return self::mcp_error( 'post_not_found', 'Publicación no encontrada.' );
+			return self::mcp_error( 'post_not_found', __( 'Publicación no encontrada.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! current_user_can( 'read_post', $id ) || ( 'publish' !== $post->post_status && ! current_user_can( 'edit_post', $id ) ) ) {
+			return self::mcp_error( 'forbidden', __( 'No tienes permisos para leer esta publicación.', 'wp-mcp-agent-bridge' ), 403 );
 		}
 
 		return array(
@@ -269,7 +282,24 @@ trait WP_MCP_Bridge_Tools_Core {
 		$excerpt   = isset( $args['excerpt'] ) ? sanitize_textarea_field( $args['excerpt'] ) : '';
 
 		if ( '' === $title ) {
-			return self::mcp_error( 'missing_title', 'El título de la publicación es obligatorio.' );
+			return self::mcp_error( 'missing_title', __( 'El título de la publicación es obligatorio.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! post_type_exists( $post_type ) ) {
+			return self::mcp_error( 'invalid_post_type', __( 'El tipo de publicación especificado no existe.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		$pto = get_post_type_object( $post_type );
+		if ( ! $pto || ! current_user_can( $pto->cap->create_posts ) ) {
+			return self::mcp_error( 'forbidden', __( 'No tienes permisos para crear este tipo de publicación.', 'wp-mcp-agent-bridge' ), 403 );
+		}
+
+		if ( 'publish' === $status && ! current_user_can( $pto->cap->publish_posts ) ) {
+			return self::mcp_error( 'forbidden', __( 'No tienes permisos para publicar este tipo de contenido.', 'wp-mcp-agent-bridge' ), 403 );
+		}
+
+		if ( ! current_user_can( 'unfiltered_html' ) ) {
+			$content = wp_kses_post( $content );
 		}
 
 		$post_id = wp_insert_post(
@@ -292,7 +322,7 @@ trait WP_MCP_Bridge_Tools_Core {
 			'title'   => $title,
 			'status'  => $status,
 			'url'     => get_permalink( $post_id ),
-			'message' => 'Publicación creada exitosamente.',
+			'message' => __( 'Publicación creada exitosamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -304,7 +334,11 @@ trait WP_MCP_Bridge_Tools_Core {
 		$post = get_post( $id );
 
 		if ( ! $post ) {
-			return self::mcp_error( 'post_not_found', 'Publicación no encontrada.' );
+			return self::mcp_error( 'post_not_found', __( 'Publicación no encontrada.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $id ) ) {
+			return self::mcp_error( 'forbidden', __( 'No tienes permisos para editar esta publicación.', 'wp-mcp-agent-bridge' ), 403 );
 		}
 
 		$update_data = array( 'ID' => $id );
@@ -313,10 +347,16 @@ trait WP_MCP_Bridge_Tools_Core {
 			$update_data['post_title'] = sanitize_text_field( $args['title'] );
 		}
 		if ( isset( $args['content'] ) ) {
-			$update_data['post_content'] = (string) $args['content'];
+			$raw_content                 = (string) $args['content'];
+			$update_data['post_content'] = current_user_can( 'unfiltered_html' ) ? $raw_content : wp_kses_post( $raw_content );
 		}
 		if ( isset( $args['status'] ) ) {
-			$update_data['post_status'] = sanitize_key( $args['status'] );
+			$new_status = sanitize_key( $args['status'] );
+			$pto        = get_post_type_object( $post->post_type );
+			if ( 'publish' === $new_status && $pto && ! current_user_can( $pto->cap->publish_posts ) ) {
+				return self::mcp_error( 'forbidden', __( 'No tienes permisos para publicar esta entrada.', 'wp-mcp-agent-bridge' ), 403 );
+			}
+			$update_data['post_status'] = $new_status;
 		}
 		if ( isset( $args['excerpt'] ) ) {
 			$update_data['post_excerpt'] = sanitize_textarea_field( $args['excerpt'] );
@@ -332,7 +372,7 @@ trait WP_MCP_Bridge_Tools_Core {
 			'title'   => get_the_title( $id ),
 			'status'  => get_post_status( $id ),
 			'url'     => get_permalink( $id ),
-			'message' => 'Publicación actualizada exitosamente.',
+			'message' => __( 'Publicación actualizada exitosamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -342,17 +382,26 @@ trait WP_MCP_Bridge_Tools_Core {
 	public static function tool_delete_post( $args ) {
 		$id    = isset( $args['id'] ) ? (int) $args['id'] : 0;
 		$force = ! empty( $args['force'] );
+		$post  = get_post( $id );
+
+		if ( ! $post ) {
+			return self::mcp_error( 'post_not_found', __( 'Publicación no encontrada.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! current_user_can( 'delete_post', $id ) ) {
+			return self::mcp_error( 'forbidden', __( 'No tienes permisos para eliminar esta publicación.', 'wp-mcp-agent-bridge' ), 403 );
+		}
 
 		$res = wp_delete_post( $id, $force );
 		if ( ! $res ) {
-			return self::mcp_error( 'delete_failed', 'No se pudo eliminar la publicación solicitada.' );
+			return self::mcp_error( 'delete_failed', __( 'No se pudo eliminar la publicación solicitada.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		return array(
 			'id'      => $id,
 			'deleted' => true,
 			'force'   => $force,
-			'message' => $force ? 'Publicación eliminada permanentemente.' : 'Publicación enviada a la papelera.',
+			'message' => $force ? __( 'Publicación eliminada permanentemente.', 'wp-mcp-agent-bridge' ) : __( 'Publicación enviada a la papelera.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -364,7 +413,7 @@ trait WP_MCP_Bridge_Tools_Core {
 		$limit    = self::clamp_limit( isset( $args['limit'] ) ? $args['limit'] : 20 );
 
 		if ( ! taxonomy_exists( $taxonomy ) ) {
-			return self::mcp_error( 'invalid_taxonomy', 'La taxonomía especificada no existe.' );
+			return self::mcp_error( 'invalid_taxonomy', __( 'La taxonomía especificada no existe.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		$terms = get_terms(
@@ -404,7 +453,11 @@ trait WP_MCP_Bridge_Tools_Core {
 		$desc     = isset( $args['description'] ) ? sanitize_text_field( $args['description'] ) : '';
 
 		if ( '' === $name ) {
-			return self::mcp_error( 'missing_term_name', 'El nombre del término es obligatorio.' );
+			return self::mcp_error( 'missing_term_name', __( 'El nombre del término es obligatorio.', 'wp-mcp-agent-bridge' ) );
+		}
+
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			return self::mcp_error( 'invalid_taxonomy', __( 'La taxonomía especificada no existe.', 'wp-mcp-agent-bridge' ) );
 		}
 
 		$res = wp_insert_term( $name, $taxonomy, array( 'description' => $desc ) );
@@ -416,7 +469,7 @@ trait WP_MCP_Bridge_Tools_Core {
 			'term_id'  => $res['term_id'],
 			'name'     => $name,
 			'taxonomy' => $taxonomy,
-			'message'  => 'Término creado exitosamente.',
+			'message'  => __( 'Término creado exitosamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -429,7 +482,6 @@ trait WP_MCP_Bridge_Tools_Core {
 		}
 
 		$all_plugins = get_plugins();
-		$active      = get_option( 'active_plugins', array() );
 		$output      = array();
 
 		foreach ( $all_plugins as $file => $data ) {
@@ -437,7 +489,7 @@ trait WP_MCP_Bridge_Tools_Core {
 				'file'        => $file,
 				'name'        => $data['Name'],
 				'version'     => $data['Version'],
-				'active'      => in_array( $file, $active, true ),
+				'active'      => is_plugin_active( $file ),
 				'description' => wp_strip_all_tags( $data['Description'] ),
 			);
 		}

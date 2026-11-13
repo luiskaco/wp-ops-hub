@@ -17,6 +17,36 @@ trait WP_MCP_Bridge_Admin {
 	public static function init_admin() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_admin_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_admin_settings' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
+	}
+
+	/**
+	 * Encola estilos y scripts solo en la página de configuración del plugin.
+	 *
+	 * @param string $hook_suffix Hook de la pantalla actual en wp-admin.
+	 * @return void
+	 */
+	public static function enqueue_admin_assets( $hook_suffix ) {
+		if ( 'tools_page_wp-mcp-agent-bridge' !== $hook_suffix ) {
+			return;
+		}
+
+		$base_url = plugin_dir_url( WP_MCP_AGENT_BRIDGE_FILE );
+
+		wp_enqueue_style(
+			'wp-mcp-agent-bridge-admin',
+			$base_url . 'assets/admin.css',
+			array(),
+			self::VERSION
+		);
+
+		wp_enqueue_script(
+			'wp-mcp-agent-bridge-admin',
+			$base_url . 'assets/admin.js',
+			array(),
+			self::VERSION,
+			true
+		);
 	}
 
 	/**
@@ -84,18 +114,18 @@ trait WP_MCP_Bridge_Admin {
 		}
 
 		$settings = self::get_settings();
-		$endpoint = rest_url( 'mcp/v1' );
+		$endpoint = rest_url( 'mcp/v1/rpc' );
 		$tools    = self::get_active_tools();
 		$logs     = get_option( self::LOG_KEY, array() );
 		$user     = wp_get_current_user();
 
-		// JSON para clientes
+		// JSON para clientes (la credencial Base64 se completa en el navegador si el usuario pega su Application Password)
 		$mcp_json_snippet = array(
 			'mcpServers' => array(
 				'wordpress' => array(
 					'url'     => $endpoint,
 					'headers' => array(
-						'Authorization' => 'Basic ' . base64_encode( $user->user_login . ':TU_APPLICATION_PASSWORD_AQUI' ),
+						'Authorization' => 'Basic <BASE64_DE_USUARIO_Y_PASSWORD>',
 					),
 				),
 			),
@@ -104,258 +134,38 @@ trait WP_MCP_Bridge_Admin {
 
 		$modules_info = array(
 			'core'        => array(
-				'name' => 'Núcleo (Core)',
-				'desc' => 'Entradas, páginas, Custom Post Types, taxonomías y plugins.',
+				'name' => __( 'Núcleo (Core)', 'wp-mcp-agent-bridge' ),
+				'desc' => __( 'Entradas, páginas, Custom Post Types, taxonomías y plugins.', 'wp-mcp-agent-bridge' ),
 				'icon' => 'dashicons-admin-post',
-				'tag'  => 'Base',
+				'tag'  => __( 'Base', 'wp-mcp-agent-bridge' ),
 			),
 			'media'       => array(
-				'name' => 'Biblioteca de Medios',
-				'desc' => 'Gestión y subida de imágenes por URL remota y Base64.',
+				'name' => __( 'Biblioteca de Medios', 'wp-mcp-agent-bridge' ),
+				'desc' => __( 'Gestión y subida de imágenes por URL remota y Base64.', 'wp-mcp-agent-bridge' ),
 				'icon' => 'dashicons-admin-media',
-				'tag'  => 'Archivos',
+				'tag'  => __( 'Archivos', 'wp-mcp-agent-bridge' ),
 			),
 			'woocommerce' => array(
-				'name' => 'WooCommerce',
-				'desc' => 'Productos, inventario, precios, pedidos y clientes.',
+				'name' => __( 'WooCommerce', 'wp-mcp-agent-bridge' ),
+				'desc' => __( 'Productos, inventario, precios, pedidos y clientes.', 'wp-mcp-agent-bridge' ),
 				'icon' => 'dashicons-cart',
-				'tag'  => 'Tienda',
+				'tag'  => __( 'Tienda', 'wp-mcp-agent-bridge' ),
 			),
 			'seo'         => array(
-				'name' => 'SEO Multigestor',
-				'desc' => 'Lectura y optimización con Yoast, Rank Math y AIOSEO.',
+				'name' => __( 'SEO Multigestor', 'wp-mcp-agent-bridge' ),
+				'desc' => __( 'Lectura y optimización con Yoast, Rank Math y AIOSEO.', 'wp-mcp-agent-bridge' ),
 				'icon' => 'dashicons-search',
-				'tag'  => 'Metadatos',
+				'tag'  => __( 'Metadatos', 'wp-mcp-agent-bridge' ),
 			),
 			'cache'       => array(
-				'name' => 'Caché & Rendimiento',
-				'desc' => 'Purga de LiteSpeed, WP Rocket, WP Super Cache y W3TC.',
+				'name' => __( 'Caché & Rendimiento', 'wp-mcp-agent-bridge' ),
+				'desc' => __( 'Purga de LiteSpeed, WP Rocket, WP Super Cache y W3TC.', 'wp-mcp-agent-bridge' ),
 				'icon' => 'dashicons-performance',
-				'tag'  => 'Velocidad',
+				'tag'  => __( 'Velocidad', 'wp-mcp-agent-bridge' ),
 			),
 		);
 		?>
 		<div class="wrap mcp-wrap">
-			<style>
-				.mcp-wrap {
-					max-width: 1200px;
-					margin: 20px auto 40px;
-					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-				}
-				.mcp-header-card {
-					background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
-					border-top: 4px solid #98825b;
-					color: #fff;
-					padding: 24px 30px;
-					border-radius: 8px 8px 0 0;
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-					box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-				}
-				.mcp-header-title {
-					display: flex;
-					align-items: center;
-					gap: 12px;
-				}
-				.mcp-header-title h1 {
-					color: #fff;
-					margin: 0;
-					font-size: 22px;
-					font-weight: 700;
-				}
-				.mcp-badge {
-					background: #98825b;
-					color: #ffffff;
-					font-size: 11px;
-					font-weight: 600;
-					padding: 3px 8px;
-					border-radius: 12px;
-					text-transform: uppercase;
-					letter-spacing: 0.5px;
-				}
-				.mcp-status-pill {
-					display: inline-flex;
-					align-items: center;
-					gap: 6px;
-					background: rgba(255, 255, 255, 0.1);
-					border: 1px solid rgba(255, 255, 255, 0.15);
-					padding: 6px 14px;
-					border-radius: 20px;
-					font-size: 13px;
-					font-weight: 500;
-				}
-				.mcp-dot {
-					width: 8px;
-					height: 8px;
-					border-radius: 50%;
-					display: inline-block;
-				}
-				.mcp-dot-online { background: #46b450; box-shadow: 0 0 6px #46b450; }
-				.mcp-dot-offline { background: #dc3232; }
-
-				.mcp-layout {
-					display: grid;
-					grid-template-columns: 1fr;
-					gap: 20px;
-					background: #ede2ce;
-					border: 1px solid #d5c8b2;
-					border-top: none;
-					padding: 24px;
-					border-radius: 0 0 8px 8px;
-				}
-				@media (min-width: 900px) {
-					.mcp-layout {
-						grid-template-columns: 7fr 5fr;
-					}
-				}
-				.mcp-box {
-					background: #ffffff;
-					border: 1px solid #d5c8b2;
-					border-radius: 6px;
-					padding: 20px 24px;
-					box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-					margin-bottom: 20px;
-				}
-				.mcp-box:last-child {
-					margin-bottom: 0;
-				}
-				.mcp-box-title {
-					margin: 0 0 16px 0;
-					padding-bottom: 10px;
-					border-bottom: 2px solid #edd1c1;
-					font-size: 15px;
-					font-weight: 600;
-					color: #1d2327;
-					display: flex;
-					align-items: center;
-					gap: 8px;
-				}
-				.mcp-card-item {
-					display: flex;
-					align-items: flex-start;
-					gap: 12px;
-					background: #ffffff;
-					border: 1px solid #e2dcd5;
-					border-radius: 6px;
-					padding: 12px 14px;
-					margin-bottom: 10px;
-					transition: border 0.15s, background 0.15s;
-				}
-				.mcp-card-item:hover {
-					background: #fdfaf6;
-					border-color: #98825b;
-				}
-				.mcp-card-item input[type="checkbox"] {
-					margin-top: 3px;
-					transform: scale(1.15);
-					cursor: pointer;
-				}
-				.mcp-card-label {
-					font-weight: 600;
-					font-size: 13.5px;
-					color: #1d2327;
-					cursor: pointer;
-					display: block;
-				}
-				.mcp-card-desc {
-					font-size: 12px;
-					color: #646970;
-					margin: 3px 0 0;
-					line-height: 1.4;
-				}
-				.mcp-tag {
-					font-size: 10px;
-					font-weight: 600;
-					padding: 2px 7px;
-					border-radius: 4px;
-					background: #d0ceed;
-					color: #3f3b6c;
-					margin-left: 6px;
-					text-transform: uppercase;
-					letter-spacing: 0.3px;
-				}
-				.mcp-code-block {
-					background: #1e1e1e;
-					color: #9cdcfe;
-					padding: 14px;
-					border-radius: 5px;
-					font-family: Consolas, Monaco, "Courier New", monospace;
-					font-size: 12px;
-					line-height: 1.5;
-					overflow-x: auto;
-					position: relative;
-				}
-				.mcp-copy-btn {
-					float: right;
-					background: #98825b;
-					color: #fff;
-					border: none;
-					padding: 5px 12px;
-					border-radius: 4px;
-					cursor: pointer;
-					font-size: 11px;
-					font-weight: 600;
-					transition: background 0.15s;
-				}
-				.mcp-copy-btn:hover {
-					background: #7a6845;
-				}
-				.mcp-endpoint-input {
-					width: 100%;
-					font-family: monospace;
-					background: #fdfaf6;
-					border: 1px solid #d5c8b2;
-					padding: 7px 10px;
-					border-radius: 4px;
-					margin: 4px 0 12px;
-					font-size: 12.5px;
-					color: #2c3338;
-				}
-				.mcp-table {
-					width: 100%;
-					border-collapse: collapse;
-					font-size: 12.5px;
-				}
-				.mcp-table th, .mcp-table td {
-					padding: 10px 12px;
-					text-align: left;
-					border-bottom: 1px solid #edd1c1;
-				}
-				.mcp-table th {
-					background: #fdfaf6;
-					font-weight: 600;
-					color: #50575e;
-				}
-				.mcp-badge-ok {
-					background: #e7f5ea;
-					color: #185a25;
-					font-weight: 600;
-					padding: 2px 7px;
-					border-radius: 4px;
-					font-size: 11px;
-				}
-				.mcp-badge-err {
-					background: #fbeae5;
-					color: #8a2414;
-					font-weight: 600;
-					padding: 2px 7px;
-					border-radius: 4px;
-					font-size: 11px;
-				}
-				.mcp-btn-submit {
-					background: #98825b !important;
-					border-color: #7a6845 !important;
-					color: #ffffff !important;
-					padding: 6px 20px !important;
-					font-weight: 600 !important;
-					border-radius: 4px !important;
-					box-shadow: none !important;
-				}
-				.mcp-btn-submit:hover {
-					background: #7a6845 !important;
-				}
-			</style>
 
 			<div class="mcp-header-card">
 				<div>
@@ -393,7 +203,7 @@ trait WP_MCP_Bridge_Admin {
 								<input type="checkbox" id="mcp_enabled" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enabled]" value="1" <?php checked( $settings['enabled'] ); ?> />
 								<div>
 									<label for="mcp_enabled" class="mcp-card-label"><?php esc_html_e( 'Habilitar servidor MCP', 'wp-mcp-agent-bridge' ); ?></label>
-									<p class="mcp-card-desc"><?php esc_html_e( 'Permite atender solicitudes JSON-RPC en /wp-json/mcp/v1 autenticadas con Application Passwords.', 'wp-mcp-agent-bridge' ); ?></p>
+									<p class="mcp-card-desc"><?php esc_html_e( 'Permite atender solicitudes JSON-RPC en /wp-json/mcp/v1/rpc autenticadas con Application Passwords.', 'wp-mcp-agent-bridge' ); ?></p>
 								</div>
 							</div>
 
@@ -469,11 +279,22 @@ trait WP_MCP_Bridge_Admin {
 						</h3>
 
 						<label style="font-size: 12px; font-weight: 600; color: #50575e;"><?php esc_html_e( 'URL del Endpoint MCP (HTTP JSON-RPC):', 'wp-mcp-agent-bridge' ); ?></label>
-						<input type="text" class="mcp-endpoint-input" readonly value="<?php echo esc_attr( $endpoint ); ?>" onclick="this.select();" />
+						<input type="text" class="mcp-endpoint-input" readonly value="<?php echo esc_attr( $endpoint ); ?>" />
+
+						<label for="mcp_app_password_input" style="font-size: 12px; font-weight: 600; color: #50575e; display: block;">
+							<?php
+							printf(
+								/* translators: %s: nombre de usuario actual */
+								esc_html__( 'Contraseña de aplicación para "%s" (solo local, no se guarda):', 'wp-mcp-agent-bridge' ),
+								esc_html( $user->user_login )
+							);
+							?>
+						</label>
+						<input type="text" id="mcp_app_password_input" class="mcp-endpoint-input" autocomplete="off" spellcheck="false" data-username="<?php echo esc_attr( $user->user_login ); ?>" data-endpoint="<?php echo esc_attr( $endpoint ); ?>" placeholder="xxxx xxxx xxxx xxxx" />
 
 						<div style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0 6px;">
 							<span style="font-size: 12px; font-weight: 600; color: #50575e;"><?php esc_html_e( 'Configuración JSON (.cursor/mcp.json):', 'wp-mcp-agent-bridge' ); ?></span>
-							<button type="button" class="mcp-copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('mcp_json_snippet').value); this.innerText='¡Copiado!'; setTimeout(() => this.innerText='Copiar', 2000);">
+							<button type="button" id="mcp_copy_json_btn" class="mcp-copy-btn" data-copied-label="<?php esc_attr_e( '¡Copiado!', 'wp-mcp-agent-bridge' ); ?>">
 								<?php esc_html_e( 'Copiar JSON', 'wp-mcp-agent-bridge' ); ?>
 							</button>
 						</div>
@@ -483,9 +304,9 @@ trait WP_MCP_Bridge_Admin {
 						<div style="background: #eef2fa; border-left: 3px solid #2271b1; padding: 10px 12px; border-radius: 4px; margin-top: 14px; font-size: 12px; color: #1a4282;">
 							<strong><?php esc_html_e( 'Instrucciones:', 'wp-mcp-agent-bridge' ); ?></strong>
 							<ol style="margin: 6px 0 0 16px; padding: 0;">
-								<li><?php esc_html_e( 'Ve a Usuarios > Perfil y crea una "Contraseña de aplicación".', 'wp-mcp-agent-bridge' ); ?></li>
-								<li><?php esc_html_e( 'Reemplaza TU_APPLICATION_PASSWORD_AQUI con tu contraseña.', 'wp-mcp-agent-bridge' ); ?></li>
-								<li><?php esc_html_e( 'Pega el bloque en Cursor, Windsurf, Claude o Antigravity.', 'wp-mcp-agent-bridge' ); ?></li>
+								<li><?php esc_html_e( 'Ve a Usuarios > Perfil y crea una "Contraseña de aplicación" (formato xxxx xxxx xxxx xxxx).', 'wp-mcp-agent-bridge' ); ?></li>
+								<li><?php esc_html_e( 'Pégala en el campo de arriba: el JSON calculará el encabezado Basic Base64 automáticamente.', 'wp-mcp-agent-bridge' ); ?></li>
+								<li><?php esc_html_e( 'Haz clic en "Copiar JSON" y pégalo en Cursor, Windsurf, Claude o Antigravity.', 'wp-mcp-agent-bridge' ); ?></li>
 							</ol>
 						</div>
 
