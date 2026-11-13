@@ -3,7 +3,7 @@
  * Plugin Name:       WP MCP Agent Bridge
  * Plugin URI:        https://github.com/luiskaco/utilities_wordpress
  * Description:       Servidor nativo Model Context Protocol (MCP) para conectar asistentes de IA (Cursor, Antigravity, Claude Desktop) con WordPress, WooCommerce, Medios (URL y Base64), SEO y Caché.
- * Version:           1.0.2
+ * Version:           1.0.3
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            WordPress AI Utilities
@@ -45,7 +45,7 @@ final class WP_MCP_Agent_Bridge {
 	/**
 	 * Versión del plugin.
 	 */
-	public const VERSION = '1.0.2';
+	public const VERSION = '1.0.3';
 
 	/**
 	 * Clave principal de opciones en wp_options.

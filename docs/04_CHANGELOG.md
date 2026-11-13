@@ -2,6 +2,7 @@
 
 Una línea por cambio relevante, lo más reciente arriba.
 
+- `2026-11-13` — **release(wp-mcp-agent-bridge `1.0.3`):** agregado parámetro `featured_image_id` en `create-post` y `update-post` para asignar la imagen destacada (`set_post_thumbnail`).
 - `2026-11-13` — **release(wp-mcp-agent-bridge `1.0.2`):** movido endpoint REST de `/mcp/v1/` a `/mcp/v1/rpc` para evitar colisión con el índice del namespace de WordPress.
 - `2026-11-13` — **release(wp-mcp-agent-bridge `1.0.1`):** preparada versión `1.0.1` (hardening de permisos por objeto, validación de `inputSchema`, rate limiting, validación real de imágenes, assets encolados, generador Base64 en vivo en el panel, PUC para releases de GitHub, i18n y suite de pruebas).
 - `2026-11-13` — **feat(wp-mcp-agent-bridge):** extraídos CSS/JS de `trait-admin.php` a `assets/admin.css` y `assets/admin.js` (encolados solo en la pantalla del plugin), agregado `load_plugin_textdomain()` y creada suite de pruebas `tests/wp-mcp-agent-bridge/run.php` (20/20 ok en WordPress local).

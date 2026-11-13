@@ -74,9 +74,10 @@ trait WP_MCP_Bridge_Tools_Core {
 				array(
 					'title'     => self::schema_string( 'Título de la publicación.', 250 ),
 					'content'   => self::schema_string( 'Cuerpo o contenido principal (HTML o Markdown).' ),
-					'post_type' => self::schema_string( 'Tipo de publicación (post, page o CPT). Por defecto post.', 40 ),
-					'status'    => self::schema_string( 'Estado (draft, publish, pending, private). Por defecto draft.', 20 ),
-					'excerpt'   => self::schema_string( 'Extracto o resumen breve.', 500 ),
+					'post_type'         => self::schema_string( 'Tipo de publicación (post, page o CPT). Por defecto post.', 40 ),
+					'status'            => self::schema_string( 'Estado (draft, publish, pending, private). Por defecto draft.', 20 ),
+					'excerpt'           => self::schema_string( 'Extracto o resumen breve.', 500 ),
+					'featured_image_id' => self::schema_int( 'ID de attachment para asignar como imagen destacada.', 1 ),
 				),
 				array( 'title' ),
 				array( 'cap' => 'edit_posts' )
@@ -94,8 +95,9 @@ trait WP_MCP_Bridge_Tools_Core {
 					'id'        => self::schema_int( 'ID de la publicación a actualizar.', 1 ),
 					'title'     => self::schema_string( 'Nuevo título.', 250 ),
 					'content'   => self::schema_string( 'Nuevo contenido.' ),
-					'status'    => self::schema_string( 'Nuevo estado (publish, draft, pending, private).', 20 ),
-					'excerpt'   => self::schema_string( 'Nuevo extracto.', 500 ),
+					'status'            => self::schema_string( 'Nuevo estado (publish, draft, pending, private).', 20 ),
+					'excerpt'           => self::schema_string( 'Nuevo extracto.', 500 ),
+					'featured_image_id' => self::schema_int( 'ID de attachment para asignar como imagen destacada.', 1 ),
 				),
 				array( 'id' ),
 				array( 'cap' => 'edit_posts' )
@@ -317,12 +319,18 @@ trait WP_MCP_Bridge_Tools_Core {
 			return $post_id;
 		}
 
+		$featured_id = isset( $args['featured_image_id'] ) ? (int) $args['featured_image_id'] : 0;
+		if ( $featured_id > 0 && 'attachment' === get_post_type( $featured_id ) ) {
+			set_post_thumbnail( $post_id, $featured_id );
+		}
+
 		return array(
-			'id'      => $post_id,
-			'title'   => $title,
-			'status'  => $status,
-			'url'     => get_permalink( $post_id ),
-			'message' => __( 'Publicación creada exitosamente.', 'wp-mcp-agent-bridge' ),
+			'id'                => $post_id,
+			'title'             => $title,
+			'status'            => $status,
+			'featured_image_id' => (int) get_post_thumbnail_id( $post_id ),
+			'url'               => get_permalink( $post_id ),
+			'message'           => __( 'Publicación creada exitosamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
@@ -367,12 +375,20 @@ trait WP_MCP_Bridge_Tools_Core {
 			return $res;
 		}
 
+		if ( isset( $args['featured_image_id'] ) ) {
+			$featured_id = (int) $args['featured_image_id'];
+			if ( $featured_id > 0 && 'attachment' === get_post_type( $featured_id ) ) {
+				set_post_thumbnail( $id, $featured_id );
+			}
+		}
+
 		return array(
-			'id'      => $id,
-			'title'   => get_the_title( $id ),
-			'status'  => get_post_status( $id ),
-			'url'     => get_permalink( $id ),
-			'message' => __( 'Publicación actualizada exitosamente.', 'wp-mcp-agent-bridge' ),
+			'id'                => $id,
+			'title'             => get_the_title( $id ),
+			'status'            => get_post_status( $id ),
+			'featured_image_id' => (int) get_post_thumbnail_id( $id ),
+			'url'               => get_permalink( $id ),
+			'message'           => __( 'Publicación actualizada exitosamente.', 'wp-mcp-agent-bridge' ),
 		);
 	}
 
