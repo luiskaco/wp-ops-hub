@@ -26,6 +26,7 @@ Cada plugin ubicado dentro de `plugins/` es 100% independiente, no depende de li
 | [**Essential Hardening & Security**](./plugins/essential-hardening/) | Seguridad & Hardening | `1.8.0` | `Producción` | 24 escudos defensivos: Micro-WAF contra SQLi/XSS/RCE/LFI, rate limiting de login con retardo disuasivo (tarpit), honeypot anti-bots en login, 2FA por correo, verificador de integridad del núcleo (checksums oficiales), protección de carpeta uploads, bloqueo de enumeración de usuarios y mini-log rotativo de eventos. |
 | [**WP MCP Agent Bridge**](./plugins/wp-mcp-agent-bridge/) | IA & Integraciones | `1.0.0` | `Producción` | Servidor nativo **Model Context Protocol (MCP)** mediante HTTP Streamable JSON-RPC 2.0. Conecta asistentes de IA (Cursor, Claude Desktop, Antigravity, VS Code) para operar contenido, subir imágenes (vía URL o Base64), gestionar tiendas WooCommerce completas, optimizar SEO multigestor y purgar caché. |
 | [**WP Site Ops Toolkit**](./plugins/wp-site-ops-toolkit/) | Operaciones & Mantenimiento | `1.0.0` | `Producción` | Modo mantenimiento controlado (código HTTP 503) con bypass por IP o enlace secreto con cookie temporal para clientes, optimizador/limpiador de base de datos en 1 clic (transients, revisiones, spam, postmeta huérfano) y depurador de correo (`wp_mail`) con modo simulación (blackhole). |
+| [**WP Assets Pulse**](./plugins/wp-assets-pulse/) | Rendimiento & WPO | `1.0.0` | `Producción` | Optimización de entrega en front-end: debloat del núcleo (emojis, CSS de bloques Gutenberg y filtros SVG inline), carga asíncrona de JavaScript (`defer` con exclusiones seguras) y resource hints (`preconnect`) para fuentes externas. |
 | [**Modern WP Migrator**](./plugins/modern-wp-migrator/) | Migración & Backups | `7.113.4` | `Producción` | Motor de migración sin restricciones: límite de subida desbloqueado a 500 GB, restauración en 1 clic directa, sin telemetría ni publicidad, compatible con PHP 8.3+. |
 | [**WP LLMs.txt Manager**](./plugins/wp-llms-txt/) | SEO & Inteligencia Artificial | `1.1.0` | `Producción` | Generador, editor y endpoint virtual para servir archivos estandarizados `/llms.txt` y `/llms-full.txt` optimizados para indexación por LLMs (llmstxt.org). |
 
@@ -59,6 +60,7 @@ Para entornos donde los clientes no deben desactivar por error plugins críticos
 - [Guía técnica de Essential Hardening & Security](./docs/essential-hardening.md)
 - [Guía técnica de WP MCP Agent Bridge](./docs/wp-mcp-agent-bridge.md)
 - [Guía técnica de WP Site Ops Toolkit](./docs/wp-site-ops-toolkit.md)
+- [Guía técnica de WP Assets Pulse](./docs/wp-assets-pulse.md)
 - [Guía técnica de Modern WP Migrator](./docs/modern-wp-migrator.md)
 - [Guía técnica de WP LLMs.txt Manager](./docs/wp-llms-txt.md)
 - [Guía para agregar y desarrollar nuevos plugins](./docs/DEVELOPMENT.md)
