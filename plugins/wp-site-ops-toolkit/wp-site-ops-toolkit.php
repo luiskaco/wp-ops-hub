@@ -3,7 +3,7 @@
  * Plugin Name:       WP Site Ops Toolkit
  * Plugin URI:        https://github.com/luiskaco/utilities_wordpress
  * Description:       Suite ligera de operaciones para WordPress: modo mantenimiento (HTTP 503) con bypass por IP o enlace secreto, saneamiento de base de datos en 1 clic y depurador/blackhole de correos salientes (wp_mail).
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            WordPress Operations Toolkit
@@ -33,7 +33,7 @@ final class WP_Site_Ops_Toolkit {
 	/**
 	 * Versión del plugin.
 	 */
-	public const VERSION = '1.0.0';
+	public const VERSION = '1.0.1';
 
 	/**
 	 * Clave de opciones en wp_options.

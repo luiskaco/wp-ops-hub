@@ -1,0 +1,157 @@
+/* WP Site Ops Toolkit — panel de administración. Sistema visual compartido (estilo PUPSC), acento propio. */
+.ops {
+	--a: #0369a1;
+	--ad: #075985;
+	--a-soft: #e0f2fe;
+	--a-glow: rgba(125,211,252,.34);
+	--ink: #1f2430;
+	--muted: #667085;
+	--line: #e4e7ee;
+	--bg: #f6f7fb;
+	--green: #17623a; --green-soft: #e6f6ec;
+	--amber: #8a5a00; --amber-soft: #fff4d6;
+	--red: #a3173f; --red-soft: #fde8ee;
+	--blue: #1d5fa8; --blue-soft: #e3effb;
+	max-width: 1180px;
+	margin: 20px 20px 40px 0;
+	color: var(--ink);
+	font-size: 14px;
+}
+.ops *, .ops *::before, .ops *::after { box-sizing: border-box; }
+.ops p { margin: 0; }
+.ops h2, .ops h3 { margin: 0; color: var(--ink); }
+.ops code { padding: 2px 6px; border-radius: 6px; background: var(--a-soft); color: var(--ad); font-size: 12px; }
+
+/* Encabezado */
+.ops-hero {
+	display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+	padding: 28px 32px; border-radius: 16px; color: #fff;
+	background: radial-gradient(circle at 92% 12%, var(--a-glow) 0, transparent 40%), linear-gradient(135deg, var(--ad) 0%, var(--a) 100%);
+}
+.ops-eyebrow {
+	display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;
+	font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.82);
+}
+.ops-eyebrow .dashicons { width: 16px; height: 16px; font-size: 16px; }
+.ops-title { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; color: #fff !important; font-size: 28px; font-weight: 700; line-height: 1.2; }
+.ops-version { padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.18); font-size: 12px; font-weight: 600; letter-spacing: .02em; }
+.ops-sub { margin-top: 6px !important; max-width: 640px; color: rgba(255,255,255,.86); font-size: 14px; }
+.ops-pill {
+	display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px;
+	border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); font-weight: 600;
+}
+.ops-dot { width: 9px; height: 9px; border-radius: 50%; background: #9aa3b2; }
+.ops-dot--on { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+.ops-dot--off { background: #f87171; }
+
+/* Pestañas */
+.ops-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 18px; }
+.ops-tab {
+	display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 999px;
+	color: var(--muted); font-weight: 600; text-decoration: none; transition: background .15s, color .15s;
+}
+.ops-tab:hover { background: var(--a-soft); color: var(--ad); }
+.ops-tab:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; box-shadow: none; }
+.ops-tab.is-active { background: var(--a); color: #fff; }
+.ops-tab .dashicons { width: 18px; height: 18px; font-size: 18px; }
+.ops-body { margin-top: 16px; }
+.ops-tabs + .ops-body { margin-top: 0; }
+
+/* Avisos */
+.ops-alert { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; font-weight: 500; }
+.ops-alert--ok { background: var(--green-soft); color: var(--green); }
+.ops-alert--warn { background: var(--amber-soft); color: var(--amber); }
+.ops-alert--error { background: var(--red-soft); color: var(--red); }
+.ops-alert--info { background: var(--blue-soft); color: var(--blue); }
+
+/* Tarjetas de resumen */
+.ops-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 16px 0; }
+.ops-kpi { display: flex; align-items: center; gap: 14px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: #fff; --tone: var(--a); --tone-soft: var(--a-soft); }
+.ops-kpi--green { --tone: var(--green); --tone-soft: var(--green-soft); }
+.ops-kpi--amber { --tone: var(--amber); --tone-soft: var(--amber-soft); }
+.ops-kpi--red { --tone: var(--red); --tone-soft: var(--red-soft); }
+.ops-kpi--blue { --tone: var(--blue); --tone-soft: var(--blue-soft); }
+.ops-kpi-icon { display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 12px; background: var(--tone-soft); color: var(--tone); }
+.ops-kpi-icon .dashicons { width: 22px; height: 22px; font-size: 22px; }
+.ops-kpi-value { font-size: 26px; font-weight: 700; line-height: 1.1; color: var(--ink); }
+.ops-kpi-label { margin-top: 2px; color: var(--muted); font-size: 13px; }
+
+/* Rejilla y tarjeta base */
+.ops-grid { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+@media (min-width: 960px) { .ops-grid--2 { grid-template-columns: 7fr 5fr; } }
+.ops-card { margin-bottom: 16px; padding: 22px 24px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(20,30,60,.04); }
+.ops-card-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px !important; font-size: 16px; font-weight: 700; }
+.ops-card-title .dashicons { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 10px; background: var(--a-soft); color: var(--a); font-size: 18px; }
+.ops-card-title .dashicons::before { font-size: 18px; width: 18px; height: 18px; line-height: 18px; }
+.ops-card-lead { margin: -4px 0 14px !important; color: var(--muted); font-size: 13px; }
+.ops-card--accent { border-top: 3px solid var(--a); }
+
+/* Fila con interruptor */
+.ops-item {
+	display: flex; align-items: flex-start; gap: 14px; margin-bottom: 10px; padding: 14px 16px;
+	border: 1px solid var(--line); border-radius: 12px; background: var(--bg); transition: border-color .15s, background .15s;
+}
+.ops-item:hover { background: #fff; border-color: var(--a); }
+.ops-item--danger { border-left: 3px solid var(--red); }
+.ops-item--danger .ops-item-label { color: var(--red); }
+.ops-item-label { display: block; font-weight: 600; font-size: 14px; color: var(--ink); cursor: pointer; }
+.ops-item-desc { margin-top: 3px !important; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+.ops-item input[type="checkbox"] {
+	appearance: none; -webkit-appearance: none; position: relative; flex: none; width: 40px; height: 22px; margin: 1px 0 0;
+	border: 0; border-radius: 999px; background: #c5cad5; box-shadow: none; cursor: pointer; transition: background .15s;
+}
+.ops-item input[type="checkbox"]::before {
+	content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; margin: 0;
+	border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s;
+}
+.ops-item input[type="checkbox"]:checked { background: var(--a); }
+.ops-item input[type="checkbox"]:checked::before { transform: translateX(18px); content: ""; }
+.ops-item--danger input[type="checkbox"]:checked { background: var(--red); }
+.ops-item input[type="checkbox"]:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; box-shadow: none; }
+.ops-tag { margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: var(--a-soft); color: var(--ad); font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+
+/* Campos */
+.ops-field { margin-bottom: 14px; }
+.ops-field > label, .ops-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--ink); }
+.ops-field input[type="text"], .ops-field input[type="url"], .ops-field input[type="number"], .ops-field textarea, .ops-field select, .ops-input {
+	width: 100%; max-width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); box-shadow: none; font-size: 13.5px;
+}
+.ops-field input:focus, .ops-field textarea:focus, .ops-field select:focus, .ops-input:focus { border-color: var(--a); box-shadow: 0 0 0 3px var(--a-soft); outline: none; }
+.ops-hint { margin-top: 5px !important; color: var(--muted); font-size: 12px; }
+.ops-mono { font-family: Consolas, Menlo, monospace !important; font-size: 12px !important; }
+.ops-codebox { width: 100%; height: 160px; padding: 12px 14px; border: 0; border-radius: 12px; background: #1b1f2a; color: #a5d6ff; font-family: Consolas, Menlo, monospace; font-size: 12px; }
+
+/* Botones */
+.ops-btn, .ops .button.ops-btn {
+	display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; padding: 8px 18px;
+	border: 1px solid transparent; border-radius: 999px; font: inherit; font-weight: 600; line-height: 1.2; text-decoration: none; cursor: pointer; box-shadow: none;
+	transition: background .15s, border-color .15s, color .15s;
+}
+.ops-btn .dashicons { width: 18px; height: 18px; font-size: 18px; }
+.ops-btn:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; box-shadow: none; }
+.ops-btn--primary, .ops .button.ops-btn--primary { background: var(--a); border-color: var(--a); color: #fff; }
+.ops-btn--primary:hover, .ops .button.ops-btn--primary:hover { background: var(--ad); border-color: var(--ad); color: #fff; }
+.ops-btn--soft { background: var(--a-soft); color: var(--ad); }
+.ops-btn--soft:hover { background: var(--line); color: var(--ad); }
+.ops-btn--danger { background: var(--red); color: #fff; }
+.ops-btn--danger:hover { background: #7f0f31; color: #fff; }
+.ops-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
+.ops-actions .submit { margin: 0; padding: 0; }
+
+/* Tablas e insignias */
+.ops-tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.ops-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ops-table th, .ops-table td { padding: 11px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.ops-table th { background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.ops-table tbody tr:last-child td { border-bottom: 0; }
+.ops-table tbody tr:hover td { background: var(--bg); }
+.ops-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+.ops-badge--ok { background: var(--green-soft); color: var(--green); }
+.ops-badge--sim { background: var(--blue-soft); color: var(--blue); }
+.ops-badge--warn { background: var(--amber-soft); color: var(--amber); }
+.ops-badge--fail { background: var(--red-soft); color: var(--red); }
+.ops-empty { padding: 28px 16px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; font-style: italic; }
+.ops-steps { margin: 8px 0 0 18px; padding: 0; }
+.ops-note { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--blue-soft); color: var(--blue); font-size: 12.5px; }
+.ops-flex { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+@media (max-width: 782px) { .ops-hero { padding: 22px 20px; } .ops-title { font-size: 22px; } }

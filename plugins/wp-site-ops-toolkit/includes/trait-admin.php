@@ -17,6 +17,7 @@ trait WP_Site_Ops_Admin {
 	public static function init_admin() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_admin_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_admin_settings' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
 		add_action( 'admin_post_ops_cleanup_db', array( __CLASS__, 'handle_post_db_cleanup' ) );
 		add_action( 'admin_post_ops_clear_mail_log', array( __CLASS__, 'handle_post_clear_mail_log' ) );
 	}
@@ -112,7 +113,26 @@ trait WP_Site_Ops_Admin {
 	}
 
 	/**
-	 * Renderiza la interfaz administrativa con diseño moderno por pestañas.
+	 * Encola el CSS del panel solo en la página de Site Operations.
+	 *
+	 * @param string $hook_suffix Hook de la pantalla actual en wp-admin.
+	 * @return void
+	 */
+	public static function enqueue_admin_assets( $hook_suffix ) {
+		if ( 'tools_page_wp-site-ops-toolkit' !== $hook_suffix ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'wp-site-ops-toolkit-admin',
+			plugin_dir_url( WP_SITE_OPS_TOOLKIT_FILE ) . 'assets/admin.css',
+			array(),
+			self::VERSION
+		);
+	}
+
+	/**
+	 * Renderiza la interfaz administrativa con diseño por pestañas.
 	 *
 	 * @return void
 	 */
@@ -126,171 +146,48 @@ trait WP_Site_Ops_Admin {
 		$db_counts   = self::get_cleanup_counts();
 		$mail_logs   = get_option( self::MAIL_LOG_KEY, array() );
 		$my_ip       = self::get_client_ip();
-		?>
-		<div class="wrap ops-wrap">
-			<style>
-				.ops-wrap {
-					max-width: 1100px;
-					margin: 20px auto 40px;
-					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-				}
-				.ops-header {
-					background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
-					border-top: 4px solid #98825b;
-					color: #fff;
-					padding: 24px 30px;
-					border-radius: 8px 8px 0 0;
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-				}
-				.ops-header h1 {
-					color: #fff;
-					margin: 0;
-					font-size: 22px;
-					font-weight: 700;
-					display: flex;
-					align-items: center;
-					gap: 10px;
-				}
-				.ops-tabs {
-					display: flex;
-					background: #fff;
-					border: 1px solid #d5c8b2;
-					border-top: none;
-					border-bottom: 2px solid #98825b;
-					padding: 0 20px;
-				}
-				.ops-tab {
-					display: inline-flex;
-					align-items: center;
-					gap: 8px;
-					padding: 14px 20px;
-					font-size: 14px;
-					font-weight: 600;
-					color: #64748b;
-					text-decoration: none;
-					border-bottom: 3px solid transparent;
-					transition: all 0.15s;
-				}
-				.ops-tab:hover {
-					color: #98825b;
-				}
-				.ops-tab.active {
-					color: #98825b;
-					border-bottom-color: #98825b;
-				}
-				.ops-content {
-					background: #ede2ce;
-					border: 1px solid #d5c8b2;
-					border-top: none;
-					padding: 28px;
-					border-radius: 0 0 8px 8px;
-				}
-				.ops-card {
-					background: #ffffff;
-					border: 1px solid #d5c8b2;
-					border-radius: 8px;
-					padding: 24px;
-					margin-bottom: 24px;
-					box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-				}
-				.ops-card-title {
-					margin: 0 0 16px;
-					padding-bottom: 10px;
-					border-bottom: 2px solid #edd1c1;
-					font-size: 16px;
-					font-weight: 600;
-					color: #1d2327;
-					display: flex;
-					align-items: center;
-					gap: 8px;
-				}
-				.ops-metric-grid {
-					display: grid;
-					grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-					gap: 16px;
-					margin-bottom: 24px;
-				}
-				.ops-metric-box {
-					background: #fdfaf6;
-					border: 1px solid #edd1c1;
-					border-radius: 6px;
-					padding: 16px;
-					text-align: center;
-				}
-				.ops-metric-num {
-					font-size: 26px;
-					font-weight: 700;
-					color: #98825b;
-					margin-bottom: 4px;
-				}
-				.ops-metric-label {
-					font-size: 12px;
-					color: #64748b;
-					font-weight: 600;
-				}
-				.ops-table {
-					width: 100%;
-					border-collapse: collapse;
-					font-size: 13px;
-				}
-				.ops-table th, .ops-table td {
-					padding: 10px 14px;
-					border-bottom: 1px solid #edd1c1;
-					text-align: left;
-				}
-				.ops-table th {
-					background: #fdfaf6;
-					font-weight: 600;
-					color: #475569;
-				}
-				.ops-badge-ok { background: #e7f5ea; color: #185a25; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-				.ops-badge-sim { background: #d0ceed; color: #3f3b6c; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-				.ops-badge-fail { background: #fbeae5; color: #8a2414; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-				.ops-btn-primary {
-					background: #98825b !important;
-					border-color: #7a6845 !important;
-					color: #ffffff !important;
-					font-weight: 600 !important;
-					border-radius: 4px !important;
-					box-shadow: none !important;
-				}
-				.ops-btn-primary:hover {
-					background: #7a6845 !important;
-				}
-			</style>
+		$key         = self::OPTION_KEY;
+		$maint_on    = ! empty( $settings['maintenance_enabled'] );
 
-			<div class="ops-header">
+		$tabs = array(
+			'maintenance' => array( __( 'Modo Mantenimiento', 'wp-site-ops-toolkit' ), 'dashicons-hammer' ),
+			'db'          => array( __( 'Limpieza de BD', 'wp-site-ops-toolkit' ), 'dashicons-database' ),
+			'mail'        => array( __( 'Mail Debugger', 'wp-site-ops-toolkit' ), 'dashicons-email-alt' ),
+		);
+		if ( ! isset( $tabs[ $current_tab ] ) ) {
+			$current_tab = 'maintenance';
+		}
+		?>
+		<div class="wrap">
+		<div class="ops">
+			<div class="ops-hero">
 				<div>
-					<h1>
-						<span class="dashicons dashicons-admin-tools" style="font-size: 26px; width: 26px; height: 26px; color: #38bdf8;"></span>
+					<span class="ops-eyebrow"><span class="dashicons dashicons-admin-tools"></span> <?php esc_html_e( 'Operaciones del sitio', 'wp-site-ops-toolkit' ); ?></span>
+					<h1 class="ops-title">
 						WP Site Ops Toolkit
-						<span style="font-size: 11px; background: #0284c7; padding: 2px 8px; border-radius: 12px; font-weight: 600;">v<?php echo esc_html( self::VERSION ); ?></span>
+						<span class="ops-version">v<?php echo esc_html( self::VERSION ); ?></span>
 					</h1>
-					<p style="margin: 6px 0 0; color: #94a3b8; font-size: 13px;">
-						<?php esc_html_e( 'Suite de mantenimiento, saneamiento de base de datos y depurador de correo.', 'wp-site-ops-toolkit' ); ?>
-					</p>
+					<p class="ops-sub"><?php esc_html_e( 'Suite de mantenimiento, saneamiento de base de datos y depurador de correo.', 'wp-site-ops-toolkit' ); ?></p>
+				</div>
+				<div class="ops-pill">
+					<span class="ops-dot <?php echo $maint_on ? 'ops-dot--off' : 'ops-dot--on'; ?>"></span>
+					<?php echo $maint_on ? esc_html__( 'Sitio en mantenimiento', 'wp-site-ops-toolkit' ) : esc_html__( 'Sitio en línea', 'wp-site-ops-toolkit' ); ?>
 				</div>
 			</div>
 
-			<!-- Pestañas de Navegación -->
-			<div class="ops-tabs">
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'maintenance' ) ); ?>" class="ops-tab <?php echo 'maintenance' === $current_tab ? 'active' : ''; ?>">
-					<span class="dashicons dashicons-hammer"></span> <?php esc_html_e( 'Modo Mantenimiento', 'wp-site-ops-toolkit' ); ?>
-				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'db' ) ); ?>" class="ops-tab <?php echo 'db' === $current_tab ? 'active' : ''; ?>">
-					<span class="dashicons dashicons-database"></span> <?php esc_html_e( 'Limpieza de BD', 'wp-site-ops-toolkit' ); ?>
-				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'tab', 'mail' ) ); ?>" class="ops-tab <?php echo 'mail' === $current_tab ? 'active' : ''; ?>">
-					<span class="dashicons dashicons-email-alt"></span> <?php esc_html_e( 'Mail Debugger', 'wp-site-ops-toolkit' ); ?>
-				</a>
-			</div>
+			<nav class="ops-tabs" aria-label="<?php esc_attr_e( 'Secciones', 'wp-site-ops-toolkit' ); ?>">
+				<?php foreach ( $tabs as $slug => $tab ) : ?>
+					<a href="<?php echo esc_url( add_query_arg( 'tab', $slug ) ); ?>" class="ops-tab <?php echo $slug === $current_tab ? 'is-active' : ''; ?>"<?php echo $slug === $current_tab ? ' aria-current="page"' : ''; ?>>
+						<span class="dashicons <?php echo esc_attr( $tab[1] ); ?>"></span> <?php echo esc_html( $tab[0] ); ?>
+					</a>
+				<?php endforeach; ?>
+			</nav>
 
-			<div class="ops-content">
+			<div class="ops-body">
 				<?php if ( isset( $_GET['cleaned'] ) ) : ?>
-					<div class="notice notice-success is-dismissible" style="margin: 0 0 20px;">
-						<p><strong><?php echo sprintf( esc_html__( 'Limpieza ejecutada exitosamente: %d elementos eliminados.', 'wp-site-ops-toolkit' ), (int) $_GET['cleaned'] ); ?></strong></p>
+					<div class="ops-alert ops-alert--ok">
+						<span class="dashicons dashicons-yes-alt"></span>
+						<span><?php echo esc_html( sprintf( __( 'Limpieza ejecutada exitosamente: %d elementos eliminados.', 'wp-site-ops-toolkit' ), (int) $_GET['cleaned'] ) ); ?></span>
 					</div>
 				<?php endif; ?>
 
@@ -298,100 +195,108 @@ trait WP_Site_Ops_Admin {
 					<!-- PESTAÑA 1: MANTENIMIENTO -->
 					<form method="post" action="options.php">
 						<?php settings_fields( 'wp_site_ops_toolkit_group' ); ?>
-						<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[db_cleaner_enabled]" value="<?php echo ! empty( $settings['db_cleaner_enabled'] ) ? '1' : '0'; ?>" />
-						<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[mail_debugger_enabled]" value="<?php echo ! empty( $settings['mail_debugger_enabled'] ) ? '1' : '0'; ?>" />
-						<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[mail_blackhole_mode]" value="<?php echo ! empty( $settings['mail_blackhole_mode'] ) ? '1' : '0'; ?>" />
+						<input type="hidden" name="<?php echo esc_attr( $key ); ?>[db_cleaner_enabled]" value="<?php echo ! empty( $settings['db_cleaner_enabled'] ) ? '1' : '0'; ?>" />
+						<input type="hidden" name="<?php echo esc_attr( $key ); ?>[mail_debugger_enabled]" value="<?php echo ! empty( $settings['mail_debugger_enabled'] ) ? '1' : '0'; ?>" />
+						<input type="hidden" name="<?php echo esc_attr( $key ); ?>[mail_blackhole_mode]" value="<?php echo ! empty( $settings['mail_blackhole_mode'] ) ? '1' : '0'; ?>" />
 
 						<div class="ops-card">
 							<h3 class="ops-card-title"><span class="dashicons dashicons-lock"></span> <?php esc_html_e( 'Control de Mantenimiento y Staging Gate', 'wp-site-ops-toolkit' ); ?></h3>
 
-							<label style="display: block; margin-bottom: 16px; font-weight: 600; font-size: 14px;">
-								<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_enabled]" value="1" <?php checked( $settings['maintenance_enabled'] ); ?> style="transform: scale(1.2); margin-right: 8px;" />
-								<?php esc_html_e( 'Activar Modo Mantenimiento (HTTP 503)', 'wp-site-ops-toolkit' ); ?>
-							</label>
+							<div class="ops-item ops-item--danger">
+								<input type="checkbox" id="ops_maint_enabled" name="<?php echo esc_attr( $key ); ?>[maintenance_enabled]" value="1" <?php checked( $settings['maintenance_enabled'] ); ?> />
+								<div>
+									<label for="ops_maint_enabled" class="ops-item-label"><?php esc_html_e( 'Activar Modo Mantenimiento (HTTP 503)', 'wp-site-ops-toolkit' ); ?></label>
+									<p class="ops-item-desc"><?php esc_html_e( 'Los visitantes ven la pantalla de mantenimiento. Las IPs de la lista blanca y los usuarios con sesión pueden seguir navegando.', 'wp-site-ops-toolkit' ); ?></p>
+								</div>
+							</div>
 
-							<table class="form-table">
-								<tr>
-									<th><label for="ops_maint_title"><?php esc_html_e( 'Título en pantalla', 'wp-site-ops-toolkit' ); ?></label></th>
-									<td>
-										<input type="text" id="ops_maint_title" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_title]" value="<?php echo esc_attr( $settings['maintenance_title'] ); ?>" class="regular-text" />
-									</td>
-								</tr>
-								<tr>
-									<th><label for="ops_maint_msg"><?php esc_html_e( 'Mensaje para visitantes', 'wp-site-ops-toolkit' ); ?></label></th>
-									<td>
-										<textarea id="ops_maint_msg" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_message]" rows="4" class="large-text"><?php echo esc_textarea( $settings['maintenance_message'] ); ?></textarea>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="ops_maint_whitelist"><?php esc_html_e( 'Lista blanca de IPs (1 por línea)', 'wp-site-ops-toolkit' ); ?></label></th>
-									<td>
-										<textarea id="ops_maint_whitelist" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_ip_whitelist]" rows="3" class="large-text" placeholder="127.0.0.1&#10;192.168.1.1"><?php echo esc_textarea( $settings['maintenance_ip_whitelist'] ); ?></textarea>
-										<p class="description"><?php echo sprintf( esc_html__( 'Tu IP actual es: %s', 'wp-site-ops-toolkit' ), '<strong>' . esc_html( $my_ip ) . '</strong>' ); ?></p>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="ops_maint_secret"><?php esc_html_e( 'Clave secreta de acceso (Preview)', 'wp-site-ops-toolkit' ); ?></label></th>
-									<td>
-										<input type="text" id="ops_maint_secret" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_secret_key]" value="<?php echo esc_attr( $settings['maintenance_secret_key'] ); ?>" class="regular-text" placeholder="ej: cliente_demo_2026" />
-										<?php if ( ! empty( $settings['maintenance_secret_key'] ) ) : ?>
-											<p class="description">
-												<?php esc_html_e( 'Enlace para clientes:', 'wp-site-ops-toolkit' ); ?>
-												<code><?php echo esc_html( add_query_arg( 'ops_preview', $settings['maintenance_secret_key'], home_url() ) ); ?></code>
-											</p>
-										<?php endif; ?>
-									</td>
-								</tr>
-							</table>
+							<div class="ops-field">
+								<label for="ops_maint_title"><?php esc_html_e( 'Título en pantalla', 'wp-site-ops-toolkit' ); ?></label>
+								<input type="text" id="ops_maint_title" name="<?php echo esc_attr( $key ); ?>[maintenance_title]" value="<?php echo esc_attr( $settings['maintenance_title'] ); ?>" />
+							</div>
 
-							<?php submit_button( __( 'Guardar Mantenimiento', 'wp-site-ops-toolkit' ), 'primary', 'submit', true, array( 'class' => 'button button-primary ops-btn-primary' ) ); ?>
+							<div class="ops-field">
+								<label for="ops_maint_msg"><?php esc_html_e( 'Mensaje para visitantes', 'wp-site-ops-toolkit' ); ?></label>
+								<textarea id="ops_maint_msg" name="<?php echo esc_attr( $key ); ?>[maintenance_message]" rows="4"><?php echo esc_textarea( $settings['maintenance_message'] ); ?></textarea>
+							</div>
+
+							<div class="ops-field">
+								<label for="ops_maint_whitelist"><?php esc_html_e( 'Lista blanca de IPs (1 por línea)', 'wp-site-ops-toolkit' ); ?></label>
+								<textarea id="ops_maint_whitelist" class="ops-mono" name="<?php echo esc_attr( $key ); ?>[maintenance_ip_whitelist]" rows="3" placeholder="127.0.0.1&#10;192.168.1.1"><?php echo esc_textarea( $settings['maintenance_ip_whitelist'] ); ?></textarea>
+								<p class="ops-hint"><?php echo wp_kses( sprintf( __( 'Tu IP actual es: %s', 'wp-site-ops-toolkit' ), '<strong>' . esc_html( $my_ip ) . '</strong>' ), array( 'strong' => array() ) ); ?></p>
+							</div>
+
+							<div class="ops-field">
+								<label for="ops_maint_secret"><?php esc_html_e( 'Clave secreta de acceso (Preview)', 'wp-site-ops-toolkit' ); ?></label>
+								<input type="text" id="ops_maint_secret" name="<?php echo esc_attr( $key ); ?>[maintenance_secret_key]" value="<?php echo esc_attr( $settings['maintenance_secret_key'] ); ?>" placeholder="ej: cliente_demo_2026" />
+								<?php if ( ! empty( $settings['maintenance_secret_key'] ) ) : ?>
+									<p class="ops-hint">
+										<?php esc_html_e( 'Enlace para clientes:', 'wp-site-ops-toolkit' ); ?>
+										<code><?php echo esc_html( add_query_arg( 'ops_preview', $settings['maintenance_secret_key'], home_url() ) ); ?></code>
+									</p>
+								<?php endif; ?>
+							</div>
+
+							<div class="ops-actions">
+								<?php submit_button( __( 'Guardar Mantenimiento', 'wp-site-ops-toolkit' ), 'primary ops-btn ops-btn--primary', 'submit', false ); ?>
+							</div>
 						</div>
 					</form>
 
 				<?php elseif ( 'db' === $current_tab ) : ?>
 					<!-- PESTAÑA 2: LIMPIEZA DE BASE DE DATOS -->
-					<div class="ops-card">
-						<h3 class="ops-card-title"><span class="dashicons dashicons-chart-pie"></span> <?php esc_html_e( 'Métricas de la Base de Datos', 'wp-site-ops-toolkit' ); ?></h3>
-						<div class="ops-metric-grid">
-							<div class="ops-metric-box">
-								<div class="ops-metric-num"><?php echo esc_html( $db_counts['transients'] ); ?></div>
-								<div class="ops-metric-label"><?php esc_html_e( 'Transients Expirados', 'wp-site-ops-toolkit' ); ?></div>
-							</div>
-							<div class="ops-metric-box">
-								<div class="ops-metric-num"><?php echo esc_html( $db_counts['revisions'] ); ?></div>
-								<div class="ops-metric-label"><?php esc_html_e( 'Revisiones de Posts', 'wp-site-ops-toolkit' ); ?></div>
-							</div>
-							<div class="ops-metric-box">
-								<div class="ops-metric-num"><?php echo esc_html( $db_counts['trashed_posts'] ); ?></div>
-								<div class="ops-metric-label"><?php esc_html_e( 'Entradas en Papelera', 'wp-site-ops-toolkit' ); ?></div>
-							</div>
-							<div class="ops-metric-box">
-								<div class="ops-metric-num"><?php echo esc_html( $db_counts['spam_comments'] ); ?></div>
-								<div class="ops-metric-label"><?php esc_html_e( 'Comentarios Spam/Papelera', 'wp-site-ops-toolkit' ); ?></div>
-							</div>
-							<div class="ops-metric-box">
-								<div class="ops-metric-num"><?php echo esc_html( $db_counts['orphan_postmeta'] ); ?></div>
-								<div class="ops-metric-label"><?php esc_html_e( 'Postmeta Huérfano', 'wp-site-ops-toolkit' ); ?></div>
-							</div>
+					<div class="ops-kpis">
+						<div class="ops-kpi">
+							<span class="ops-kpi-icon"><span class="dashicons dashicons-clock"></span></span>
+							<div><div class="ops-kpi-value"><?php echo esc_html( $db_counts['transients'] ); ?></div><div class="ops-kpi-label"><?php esc_html_e( 'Transients expirados', 'wp-site-ops-toolkit' ); ?></div></div>
 						</div>
+						<div class="ops-kpi ops-kpi--blue">
+							<span class="ops-kpi-icon"><span class="dashicons dashicons-backup"></span></span>
+							<div><div class="ops-kpi-value"><?php echo esc_html( $db_counts['revisions'] ); ?></div><div class="ops-kpi-label"><?php esc_html_e( 'Revisiones de posts', 'wp-site-ops-toolkit' ); ?></div></div>
+						</div>
+						<div class="ops-kpi ops-kpi--amber">
+							<span class="ops-kpi-icon"><span class="dashicons dashicons-trash"></span></span>
+							<div><div class="ops-kpi-value"><?php echo esc_html( $db_counts['trashed_posts'] ); ?></div><div class="ops-kpi-label"><?php esc_html_e( 'Entradas en papelera', 'wp-site-ops-toolkit' ); ?></div></div>
+						</div>
+						<div class="ops-kpi ops-kpi--red">
+							<span class="ops-kpi-icon"><span class="dashicons dashicons-warning"></span></span>
+							<div><div class="ops-kpi-value"><?php echo esc_html( $db_counts['spam_comments'] ); ?></div><div class="ops-kpi-label"><?php esc_html_e( 'Comentarios spam/papelera', 'wp-site-ops-toolkit' ); ?></div></div>
+						</div>
+						<div class="ops-kpi ops-kpi--green">
+							<span class="ops-kpi-icon"><span class="dashicons dashicons-admin-generic"></span></span>
+							<div><div class="ops-kpi-value"><?php echo esc_html( $db_counts['orphan_postmeta'] ); ?></div><div class="ops-kpi-label"><?php esc_html_e( 'Postmeta huérfano', 'wp-site-ops-toolkit' ); ?></div></div>
+						</div>
+					</div>
+
+					<div class="ops-card">
+						<h3 class="ops-card-title"><span class="dashicons dashicons-database"></span> <?php esc_html_e( 'Selecciona las áreas a optimizar', 'wp-site-ops-toolkit' ); ?></h3>
 
 						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 							<input type="hidden" name="action" value="ops_cleanup_db" />
 							<?php wp_nonce_field( 'ops_cleanup_db_nonce' ); ?>
 
-							<h4><?php esc_html_e( 'Selecciona las áreas a optimizar:', 'wp-site-ops-toolkit' ); ?></h4>
-							<p>
-								<label><input type="checkbox" name="targets[]" value="transients" checked /> <?php esc_html_e( 'Eliminar transients expirados de la tabla options', 'wp-site-ops-toolkit' ); ?></label><br>
-								<label><input type="checkbox" name="targets[]" value="revisions" checked /> <?php esc_html_e( 'Purgar revisiones antiguas de entradas y páginas', 'wp-site-ops-toolkit' ); ?></label><br>
-								<label><input type="checkbox" name="targets[]" value="trashed_posts" checked /> <?php esc_html_e( 'Vaciar papelera de entradas y páginas', 'wp-site-ops-toolkit' ); ?></label><br>
-								<label><input type="checkbox" name="targets[]" value="spam_comments" checked /> <?php esc_html_e( 'Vaciar spam y comentarios eliminados', 'wp-site-ops-toolkit' ); ?></label><br>
-								<label><input type="checkbox" name="targets[]" value="orphan_postmeta" checked /> <?php esc_html_e( 'Limpiar metadatos huérfanos sin entrada padre', 'wp-site-ops-toolkit' ); ?></label>
-							</p>
+							<?php
+							$targets = array(
+								'transients'      => __( 'Eliminar transients expirados de la tabla options', 'wp-site-ops-toolkit' ),
+								'revisions'       => __( 'Purgar revisiones antiguas de entradas y páginas', 'wp-site-ops-toolkit' ),
+								'trashed_posts'   => __( 'Vaciar papelera de entradas y páginas', 'wp-site-ops-toolkit' ),
+								'spam_comments'   => __( 'Vaciar spam y comentarios eliminados', 'wp-site-ops-toolkit' ),
+								'orphan_postmeta' => __( 'Limpiar metadatos huérfanos sin entrada padre', 'wp-site-ops-toolkit' ),
+							);
+							foreach ( $targets as $target => $label ) :
+								?>
+								<div class="ops-item">
+									<input type="checkbox" id="ops_target_<?php echo esc_attr( $target ); ?>" name="targets[]" value="<?php echo esc_attr( $target ); ?>" checked />
+									<div><label for="ops_target_<?php echo esc_attr( $target ); ?>" class="ops-item-label"><?php echo esc_html( $label ); ?></label></div>
+								</div>
+							<?php endforeach; ?>
 
-							<button type="submit" class="button button-primary ops-btn-primary" onclick="return confirm('¿Confirmas que deseas sanear la base de datos?');" style="padding: 6px 16px;">
-								<span class="dashicons dashicons-trash" style="vertical-align: text-top; margin-right: 4px;"></span>
-								<?php esc_html_e( 'Ejecutar Limpieza en 1 Clic', 'wp-site-ops-toolkit' ); ?>
-							</button>
+							<div class="ops-actions">
+								<button type="submit" class="ops-btn ops-btn--danger" onclick="return confirm('<?php echo esc_js( __( '¿Confirmas que deseas sanear la base de datos?', 'wp-site-ops-toolkit' ) ); ?>');">
+									<span class="dashicons dashicons-trash"></span>
+									<?php esc_html_e( 'Ejecutar Limpieza en 1 Clic', 'wp-site-ops-toolkit' ); ?>
+								</button>
+							</div>
 						</form>
 					</div>
 
@@ -402,76 +307,86 @@ trait WP_Site_Ops_Admin {
 
 						<form method="post" action="options.php">
 							<?php settings_fields( 'wp_site_ops_toolkit_group' ); ?>
-							<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_enabled]" value="<?php echo ! empty( $settings['maintenance_enabled'] ) ? '1' : '0'; ?>" />
-							<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_title]" value="<?php echo esc_attr( $settings['maintenance_title'] ); ?>" />
-							<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_message]" value="<?php echo esc_attr( $settings['maintenance_message'] ); ?>" />
-							<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_ip_whitelist]" value="<?php echo esc_attr( $settings['maintenance_ip_whitelist'] ); ?>" />
-							<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[maintenance_secret_key]" value="<?php echo esc_attr( $settings['maintenance_secret_key'] ); ?>" />
-							<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[db_cleaner_enabled]" value="<?php echo ! empty( $settings['db_cleaner_enabled'] ) ? '1' : '0'; ?>" />
+							<input type="hidden" name="<?php echo esc_attr( $key ); ?>[maintenance_enabled]" value="<?php echo ! empty( $settings['maintenance_enabled'] ) ? '1' : '0'; ?>" />
+							<input type="hidden" name="<?php echo esc_attr( $key ); ?>[maintenance_title]" value="<?php echo esc_attr( $settings['maintenance_title'] ); ?>" />
+							<input type="hidden" name="<?php echo esc_attr( $key ); ?>[maintenance_message]" value="<?php echo esc_attr( $settings['maintenance_message'] ); ?>" />
+							<input type="hidden" name="<?php echo esc_attr( $key ); ?>[maintenance_ip_whitelist]" value="<?php echo esc_attr( $settings['maintenance_ip_whitelist'] ); ?>" />
+							<input type="hidden" name="<?php echo esc_attr( $key ); ?>[maintenance_secret_key]" value="<?php echo esc_attr( $settings['maintenance_secret_key'] ); ?>" />
+							<input type="hidden" name="<?php echo esc_attr( $key ); ?>[db_cleaner_enabled]" value="<?php echo ! empty( $settings['db_cleaner_enabled'] ) ? '1' : '0'; ?>" />
 
-							<label style="display: block; margin-bottom: 12px;">
-								<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[mail_debugger_enabled]" value="1" <?php checked( $settings['mail_debugger_enabled'] ); ?> />
-								<strong><?php esc_html_e( 'Activar registro de correos (wp_mail)', 'wp-site-ops-toolkit' ); ?></strong>
-							</label>
+							<div class="ops-item">
+								<input type="checkbox" id="ops_mail_enabled" name="<?php echo esc_attr( $key ); ?>[mail_debugger_enabled]" value="1" <?php checked( $settings['mail_debugger_enabled'] ); ?> />
+								<div>
+									<label for="ops_mail_enabled" class="ops-item-label"><?php esc_html_e( 'Activar registro de correos (wp_mail)', 'wp-site-ops-toolkit' ); ?></label>
+									<p class="ops-item-desc"><?php esc_html_e( 'Guarda cada correo que envía WordPress para poder revisarlo aquí.', 'wp-site-ops-toolkit' ); ?></p>
+								</div>
+							</div>
 
-							<label style="display: block; margin-bottom: 16px; color: #b45309;">
-								<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[mail_blackhole_mode]" value="1" <?php checked( $settings['mail_blackhole_mode'] ); ?> />
-								<strong><?php esc_html_e( 'Modo Simulación / Blackhole (No enviar al exterior)', 'wp-site-ops-toolkit' ); ?></strong>
-								<span style="font-size: 12px; display: block; color: #64748b;"><?php esc_html_e( 'Ideal para desarrollo local o staging. Registra los correos aquí sin enviarlos a destinatarios reales.', 'wp-site-ops-toolkit' ); ?></span>
-							</label>
+							<div class="ops-item">
+								<input type="checkbox" id="ops_mail_blackhole" name="<?php echo esc_attr( $key ); ?>[mail_blackhole_mode]" value="1" <?php checked( $settings['mail_blackhole_mode'] ); ?> />
+								<div>
+									<label for="ops_mail_blackhole" class="ops-item-label"><?php esc_html_e( 'Modo Simulación / Blackhole (No enviar al exterior)', 'wp-site-ops-toolkit' ); ?></label>
+									<p class="ops-item-desc"><?php esc_html_e( 'Ideal para desarrollo local o staging. Registra los correos aquí sin enviarlos a destinatarios reales.', 'wp-site-ops-toolkit' ); ?></p>
+								</div>
+							</div>
 
-							<?php submit_button( __( 'Guardar Ajustes de Correo', 'wp-site-ops-toolkit' ), 'primary', 'submit', true, array( 'class' => 'button button-primary ops-btn-primary' ) ); ?>
+							<div class="ops-actions">
+								<?php submit_button( __( 'Guardar Ajustes de Correo', 'wp-site-ops-toolkit' ), 'primary ops-btn ops-btn--primary', 'submit', false ); ?>
+							</div>
 						</form>
 					</div>
 
 					<div class="ops-card">
-						<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-							<h3 class="ops-card-title" style="margin: 0; padding: 0; border: none;"><span class="dashicons dashicons-list-view"></span> <?php esc_html_e( 'Últimos Correos Registrados', 'wp-site-ops-toolkit' ); ?></h3>
+						<div class="ops-flex" style="margin-bottom: 14px;">
+							<h3 class="ops-card-title" style="margin: 0 !important;"><span class="dashicons dashicons-list-view"></span> <?php esc_html_e( 'Últimos Correos Registrados', 'wp-site-ops-toolkit' ); ?></h3>
 
 							<?php if ( ! empty( $mail_logs ) ) : ?>
 								<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 									<input type="hidden" name="action" value="ops_clear_mail_log" />
 									<?php wp_nonce_field( 'ops_clear_mail_nonce' ); ?>
-									<button type="submit" class="button button-secondary" onclick="return confirm('¿Vaciar historial de correos?');"><?php esc_html_e( 'Vaciar Registro', 'wp-site-ops-toolkit' ); ?></button>
+									<button type="submit" class="ops-btn ops-btn--soft" onclick="return confirm('<?php echo esc_js( __( '¿Vaciar historial de correos?', 'wp-site-ops-toolkit' ) ); ?>');"><?php esc_html_e( 'Vaciar Registro', 'wp-site-ops-toolkit' ); ?></button>
 								</form>
 							<?php endif; ?>
 						</div>
 
 						<?php if ( empty( $mail_logs ) ) : ?>
-							<p style="color: #64748b; font-style: italic;"><?php esc_html_e( 'No hay correos registrados todavía.', 'wp-site-ops-toolkit' ); ?></p>
+							<p class="ops-empty"><?php esc_html_e( 'No hay correos registrados todavía.', 'wp-site-ops-toolkit' ); ?></p>
 						<?php else : ?>
-							<table class="ops-table">
-								<thead>
-									<tr>
-										<th><?php esc_html_e( 'Fecha / Hora', 'wp-site-ops-toolkit' ); ?></th>
-										<th><?php esc_html_e( 'Para', 'wp-site-ops-toolkit' ); ?></th>
-										<th><?php esc_html_e( 'Asunto', 'wp-site-ops-toolkit' ); ?></th>
-										<th><?php esc_html_e( 'Estado', 'wp-site-ops-toolkit' ); ?></th>
-									</tr>
-								</thead>
-								<tbody>
-									<?php foreach ( $mail_logs as $entry ) : ?>
+							<div class="ops-tablewrap">
+								<table class="ops-table">
+									<thead>
 										<tr>
-											<td><?php echo esc_html( $entry['timestamp'] ); ?></td>
-											<td><code><?php echo esc_html( $entry['to'] ); ?></code></td>
-											<td><strong><?php echo esc_html( $entry['subject'] ); ?></strong></td>
-											<td>
-												<?php if ( 'simulated' === $entry['status'] ) : ?>
-													<span class="ops-badge-sim"><?php esc_html_e( 'Simulado', 'wp-site-ops-toolkit' ); ?></span>
-												<?php elseif ( 'failed' === $entry['status'] ) : ?>
-													<span class="ops-badge-fail"><?php esc_html_e( 'Fallido', 'wp-site-ops-toolkit' ); ?></span>
-												<?php else : ?>
-													<span class="ops-badge-ok"><?php esc_html_e( 'Enviado', 'wp-site-ops-toolkit' ); ?></span>
-												<?php endif; ?>
-											</td>
+											<th><?php esc_html_e( 'Fecha / Hora', 'wp-site-ops-toolkit' ); ?></th>
+											<th><?php esc_html_e( 'Para', 'wp-site-ops-toolkit' ); ?></th>
+											<th><?php esc_html_e( 'Asunto', 'wp-site-ops-toolkit' ); ?></th>
+											<th><?php esc_html_e( 'Estado', 'wp-site-ops-toolkit' ); ?></th>
 										</tr>
-									<?php endforeach; ?>
-								</tbody>
-							</table>
+									</thead>
+									<tbody>
+										<?php foreach ( $mail_logs as $entry ) : ?>
+											<tr>
+												<td><?php echo esc_html( $entry['timestamp'] ); ?></td>
+												<td><code><?php echo esc_html( $entry['to'] ); ?></code></td>
+												<td><strong><?php echo esc_html( $entry['subject'] ); ?></strong></td>
+												<td>
+													<?php if ( 'simulated' === $entry['status'] ) : ?>
+														<span class="ops-badge ops-badge--sim"><?php esc_html_e( 'Simulado', 'wp-site-ops-toolkit' ); ?></span>
+													<?php elseif ( 'failed' === $entry['status'] ) : ?>
+														<span class="ops-badge ops-badge--fail"><?php esc_html_e( 'Fallido', 'wp-site-ops-toolkit' ); ?></span>
+													<?php else : ?>
+														<span class="ops-badge ops-badge--ok"><?php esc_html_e( 'Enviado', 'wp-site-ops-toolkit' ); ?></span>
+													<?php endif; ?>
+												</td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+								</table>
+							</div>
 						<?php endif; ?>
 					</div>
 				<?php endif; ?>
 			</div>
+		</div>
 		</div>
 		<?php
 	}
