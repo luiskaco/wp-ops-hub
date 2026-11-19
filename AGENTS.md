@@ -12,7 +12,7 @@ uno; lo de acá vale para todos.
 
 ## Stack y comandos
 
-- **Stack real:** PHP 7.4 a 8.3+ sobre la API nativa de WordPress (5.8+). Sin Node, sin build y sin dependencias externas salvo las ya incluidas en `vendor/`. Local en Laragon.
+- **Stack real:** PHP 7.4 a 8.3+ sobre la API nativa de WordPress (5.8+). Sin Node, sin build y sin dependencias externas salvo las ya incluidas en `vendor/`. Excepción: `wp-site-ops-toolkit` exige PHP 8.2+ (constantes en traits) y no se carga en versiones anteriores. Local en Laragon.
 - **Comandos:** no hay build. Tests de `essential-hardening`: `php tests/essential-hardening/run.php` (WordPress local activo; ver `docs/DEVELOPMENT.md`). Verificar sintaxis con `php -l` sobre los archivos tocados y probar el plugin activándolo en el WordPress local (enlazado con `mklink /J`, ver `docs/DEVELOPMENT.md`). Publicar una versión: tag `<slug>-v<versión>`; GitHub Actions (`.github/workflows/release-plugins.yml`) arma el ZIP y el Release, y Plugin Update Checker lo ofrece como actualización.
 
 ## Estructura

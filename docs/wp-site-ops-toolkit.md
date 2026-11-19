@@ -5,7 +5,7 @@ Suite modular y ultraligera de herramientas esenciales para mantenimiento, optim
 - **Nombre clave / Slug:** `wp-site-ops-toolkit`
 - **Versión:** `1.0.0`
 - **Licencia:** GPL-2.0-or-later
-- **Compatibilidad:** WordPress 5.8+ | PHP 7.4 - 8.5
+- **Compatibilidad:** WordPress 5.8+ | **PHP 8.2 - 8.5** (no carga en PHP 8.1 o anterior: muestra un aviso en el administrador)
 - **Ubicación:** `plugins/wp-site-ops-toolkit/`
 
 ---

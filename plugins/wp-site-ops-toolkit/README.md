@@ -2,6 +2,8 @@
 
 Suite ligera, modular y sin dependencias externas para mantenimiento de sitios, limpieza de base de datos y depuración de correos transaccionales en WordPress.
 
+> ⚠️ **Requiere PHP 8.2 o superior.** En PHP 8.1 o anterior el plugin no se carga y muestra un aviso en el administrador. WordPress también impide activarlo si el servidor no cumple.
+
 ---
 
 ## 🚀 Módulos Incluidos

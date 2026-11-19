@@ -3,9 +3,9 @@
  * Plugin Name:       WP Site Ops Toolkit
  * Plugin URI:        https://github.com/luiskaco/utilities_wordpress
  * Description:       Suite ligera de operaciones para WordPress: modo mantenimiento (HTTP 503) con bypass por IP o enlace secreto, saneamiento de base de datos en 1 clic y depurador/blackhole de correos salientes (wp_mail).
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 5.8
- * Requires PHP:      7.4
+ * Requires PHP:      8.2
  * Author:            WordPress Operations Toolkit
  * License:           GPL-2.0-or-later
  * Text Domain:       wp-site-ops-toolkit
@@ -15,6 +15,30 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! defined( 'WP_SITE_OPS_TOOLKIT_FILE' ) ) {
 	define( 'WP_SITE_OPS_TOOLKIT_FILE', __FILE__ );
+}
+
+// Requiere PHP 8.2 o superior (usa constantes dentro de traits). En versiones anteriores
+// no se carga nada y se avisa en el administrador, en vez de dar error fatal.
+if ( version_compare( PHP_VERSION, '8.2', '<' ) ) {
+	add_action(
+		'admin_notices',
+		static function () {
+			if ( ! current_user_can( 'activate_plugins' ) ) {
+				return;
+			}
+			printf(
+				'<div class="notice notice-error"><p><strong>WP Site Ops Toolkit</strong> %s</p></div>',
+				esc_html(
+					sprintf(
+						/* translators: %s: versión de PHP del servidor */
+						__( 'requiere PHP 8.2 o superior. Tu servidor usa PHP %s, por eso el plugin no se cargó. Actualiza PHP para usarlo.', 'wp-site-ops-toolkit' ),
+						PHP_VERSION
+					)
+				)
+			);
+		}
+	);
+	return;
 }
 
 // Cargar módulos por traits
@@ -33,7 +57,7 @@ final class WP_Site_Ops_Toolkit {
 	/**
 	 * Versión del plugin.
 	 */
-	public const VERSION = '1.0.1';
+	public const VERSION = '1.0.2';
 
 	/**
 	 * Clave de opciones en wp_options.
