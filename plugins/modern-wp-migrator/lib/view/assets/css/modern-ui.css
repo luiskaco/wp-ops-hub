@@ -860,3 +860,107 @@
 	height: 100% !important;
 	transition: width 0.3s ease !important;
 }
+
+/* ==========================================================================
+   99. Sistema visual compartido (estilo PUPSC) — acento rosa del migrador
+   ========================================================================== */
+.ai1wm-container {
+	--a: #be185d;
+	--ad: #9d174d;
+	--a-soft: #fce7f3;
+	--ink: #1f2430;
+	--muted: #667085;
+	--line: #e4e7ee;
+	--bg: #f6f7fb;
+	--green: #17623a;
+	--green-soft: #e6f6ec;
+	--red: #a3173f;
+	--red-soft: #fde8ee;
+	color: var(--ink);
+}
+
+.mwm-header-banner {
+	padding: 28px 32px;
+	border-radius: 16px;
+	background: radial-gradient(circle at 92% 12%, rgba(249, 168, 212, 0.34) 0, transparent 40%), linear-gradient(135deg, var(--ad) 0%, var(--a) 100%);
+	box-shadow: none;
+}
+
+.mwm-brand-icon {
+	width: 48px;
+	height: 48px;
+	border-radius: 14px;
+	border-color: rgba(255, 255, 255, 0.35);
+	background: rgba(255, 255, 255, 0.16);
+}
+
+.mwm-brand-icon .dashicons { color: #ffffff; }
+.mwm-brand-title { font-size: 28px; }
+.mwm-version-pill { padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.18); }
+.mwm-brand-desc { color: rgba(255, 255, 255, 0.86); font-size: 14px; }
+.mwm-badge { padding: 8px 16px; border-radius: 999px; font-weight: 600; }
+.mwm-badge-unlocked { border-color: rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.12); color: #ffffff; }
+.mwm-badge-unlocked .dashicons { color: #86efac; }
+
+.mwm-tabs-nav {
+	flex-wrap: wrap;
+	margin: 14px 0 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.mwm-tabs-nav .nav-tab {
+	padding: 9px 16px;
+	border: 0;
+	border-radius: 999px;
+	color: var(--muted);
+}
+
+.mwm-tabs-nav .nav-tab .dashicons { color: inherit; }
+.mwm-tabs-nav .nav-tab:hover { background: var(--a-soft); color: var(--ad); }
+.mwm-tabs-nav .nav-tab:hover .dashicons { color: var(--ad); }
+.mwm-tabs-nav .nav-tab:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; box-shadow: none; }
+.mwm-tabs-nav .nav-tab.nav-tab-active { background: var(--a); color: #ffffff; }
+.mwm-tabs-nav .nav-tab.nav-tab-active .dashicons { color: #ffffff; }
+.mwm-count-badge { background: var(--a-soft); color: var(--ad); font-weight: 700; }
+.mwm-tabs-nav .nav-tab.nav-tab-active .mwm-count-badge { background: rgba(255, 255, 255, 0.25); color: #ffffff; }
+
+.ai1wm-holder,
+.mwm-status-card {
+	border-color: var(--line);
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(20, 30, 60, 0.04);
+}
+
+.mwm-section-header { border-bottom-color: var(--line); }
+.mwm-section-header h2 { font-size: 20px; }
+.mwm-section-header h2 .dashicons {
+	display: grid;
+	place-items: center;
+	width: 34px;
+	height: 34px;
+	border-radius: 10px;
+	background: var(--a-soft);
+	color: var(--a);
+	font-size: 20px;
+}
+.mwm-section-subtitle { color: var(--muted); }
+.mwm-card-header { border-bottom-color: var(--line); }
+
+.ai1wm-button-group { border-color: var(--a) !important; border-radius: 999px !important; color: var(--a) !important; }
+.ai1wm-button-group .ai1wm-button-main { border-color: var(--a) !important; border-radius: 999px !important; background: var(--a) !important; box-shadow: none !important; }
+.ai1wm-button-group .ai1wm-button-main:hover { border-color: var(--ad) !important; background: var(--ad) !important; }
+
+.mwm-create-backup-btn { border-color: var(--a) !important; border-radius: 999px !important; background: var(--a) !important; box-shadow: none !important; }
+.mwm-create-backup-btn:hover { border-color: var(--ad) !important; background: var(--ad) !important; }
+
+.ai1wm-backups thead th { background: var(--bg); color: var(--muted); }
+.ai1wm-backups tbody tr:hover { background: var(--bg); }
+.mwm-storage-box, .mwm-info-box { border-radius: 12px; }
+.mwm-dropzone { border-radius: 14px !important; }
+.mwm-dropzone:hover, .mwm-dropzone.ai1wm-drag-over { border-color: var(--a) !important; background: var(--a-soft) !important; }
+.ai1wm-modal-container { border-radius: 16px; }
+@media (max-width: 782px) { .mwm-header-banner { padding: 22px 20px; } .mwm-brand-title { font-size: 22px; } }
