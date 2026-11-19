@@ -3,7 +3,7 @@
  * Plugin Name:       WP Assets Pulse
  * Plugin URI:        https://github.com/luiskaco/wp-ops-hub
  * Description:       Optimización ultraligera de recursos en front-end (WPO): eliminación de emojis y CSS innecesario, carga diferida de scripts (defer) y preconexiones de fuentes (resource hints).
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            WordPress Performance Toolkit
@@ -33,7 +33,7 @@ final class WP_Assets_Pulse {
 	/**
 	 * Versión del plugin.
 	 */
-	public const VERSION = '1.0.0';
+	public const VERSION = '1.0.1';
 
 	/**
 	 * Clave de opciones en wp_options.
