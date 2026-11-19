@@ -10,6 +10,24 @@ defined( 'ABSPATH' ) || exit;
 
 trait Essential_Hardening_Admin {
 
+	/**
+	 * Encola el CSS del panel solo en la página de Seguridad Esencial.
+	 *
+	 * @param string $hook_suffix Hook de la pantalla actual en wp-admin.
+	 */
+	public function enqueue_admin_assets( $hook_suffix ): void {
+		if ( 'settings_page_essential-hardening' !== $hook_suffix ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'essential-hardening-admin',
+			plugin_dir_url( ESSENTIAL_HARDENING_FILE ) . 'assets/admin.css',
+			array(),
+			self::VERSION
+		);
+	}
+
 	public function register_admin_menu(): void {
 		add_options_page(
 			__( 'Hardening & Seguridad', 'essential-hardening' ),
@@ -120,219 +138,22 @@ trait Essential_Hardening_Admin {
 			echo '<div class="notice notice-success is-dismissible" style="margin-top: 15px;"><p>' . esc_html__( 'Registro de eventos de seguridad vaciado con éxito.', 'essential-hardening' ) . '</p></div>';
 		}
 		?>
-		<div class="wrap" id="eh-settings-wrap">
-			<style>
-				#eh-settings-wrap {
-					max-width: 960px;
-					margin-top: 20px;
-				}
-				.eh-banner {
-					background: linear-gradient(135deg, #1d2327 0%, #2c3338 100%);
-					border-top: 4px solid #98825b;
-					color: #ffffff;
-					padding: 24px 30px;
-					border-radius: 8px 8px 0 0;
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-					flex-wrap: wrap;
-					gap: 15px;
-					border: 1px solid #d5c8b2;
-					border-bottom: none;
-				}
-				.eh-banner-title {
-					margin: 0;
-					font-size: 22px;
-					font-weight: 700;
-					color: #ffffff;
-					display: flex;
-					align-items: center;
-					gap: 12px;
-				}
-				.eh-banner-subtitle {
-					margin: 6px 0 0;
-					font-size: 13px;
-					color: #c3c4c7;
-					max-width: 620px;
-					line-height: 1.45;
-				}
-				.eh-version-badge {
-					background: #98825b;
-					color: #ffffff;
-					font-size: 11px;
-					padding: 3px 8px;
-					border-radius: 12px;
-					font-weight: 600;
-					letter-spacing: 0.5px;
-				}
-				.eh-stats-pill {
-					background: rgba(255, 255, 255, 0.1);
-					border: 1px solid rgba(255, 255, 255, 0.15);
-					padding: 10px 18px;
-					border-radius: 20px;
-					font-size: 13px;
-					font-weight: 500;
-					color: #ffffff;
-					text-align: right;
-				}
-				.eh-stats-pill strong {
-					color: #cedded;
-					font-size: 15px;
-				}
-				.eh-card {
-					background: #ffffff;
-					border: 1px solid #d5c8b2;
-					border-top: none;
-					padding: 24px 28px;
-				}
-				.eh-card:last-of-type {
-					border-radius: 0 0 8px 8px;
-					border-bottom: 1px solid #d5c8b2;
-				}
-				.eh-card-header {
-					display: flex;
-					align-items: center;
-					gap: 12px;
-					margin-bottom: 16px;
-					padding-bottom: 12px;
-					border-bottom: 2px solid #edd1c1;
-				}
-				.eh-card-icon {
-					font-size: 22px;
-					line-height: 1;
-				}
-				.eh-card-title {
-					margin: 0;
-					font-size: 16px;
-					font-weight: 600;
-					color: #1d2327;
-				}
-				.eh-card-desc {
-					margin: 2px 0 0;
-					font-size: 12px;
-					color: #646970;
-				}
-				.eh-grid {
-					display: grid;
-					grid-template-columns: 1fr;
-					gap: 12px;
-				}
-				@media (min-width: 782px) {
-					.eh-grid-2col {
-						grid-template-columns: 1fr 1fr;
-					}
-				}
-				.eh-item {
-					display: flex;
-					align-items: flex-start;
-					gap: 14px;
-					background: #fdfaf6;
-					border: 1px solid #e2dcd5;
-					border-radius: 6px;
-					padding: 14px 16px;
-					transition: all 0.15s ease-in-out;
-				}
-				.eh-item:hover {
-					background: #ffffff;
-					border-color: #98825b;
-				}
-				.eh-item input[type="checkbox"] {
-					margin-top: 3px;
-					transform: scale(1.15);
-					cursor: pointer;
-				}
-				.eh-item-body {
-					flex: 1;
-				}
-				.eh-item-title-row {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					flex-wrap: wrap;
-				}
-				.eh-item-label {
-					font-size: 13.5px;
-					font-weight: 600;
-					color: #1d2327;
-					cursor: pointer;
-				}
-				.eh-tag {
-					font-size: 10px;
-					font-weight: 600;
-					padding: 2px 7px;
-					border-radius: 4px;
-					text-transform: uppercase;
-					letter-spacing: 0.3px;
-				}
-				.eh-tag-firewall { background: #e7f5ea; color: #185a25; }
-				.eh-tag-access   { background: #d0ceed; color: #3f3b6c; }
-				.eh-tag-privacy  { background: #edd1c1; color: #6b3e23; }
-				.eh-tag-spam     { background: #fbeae5; color: #8a2414; }
-				.eh-item-desc {
-					margin: 5px 0 0;
-					font-size: 12px;
-					color: #50575e;
-					line-height: 1.45;
-				}
-				.eh-sub-settings {
-					margin-top: 10px;
-					padding-top: 10px;
-					border-top: 1px dashed #dcdcde;
-					display: flex;
-					flex-wrap: wrap;
-					gap: 12px;
-				}
-				.eh-sub-setting {
-					display: flex;
-					flex-direction: column;
-					gap: 4px;
-				}
-				.eh-sub-setting label {
-					font-size: 11px;
-					font-weight: 600;
-					color: #50575e;
-				}
-				.eh-sub-setting select {
-					font-size: 12px;
-					padding: 2px 8px;
-					height: 30px;
-					border-radius: 4px;
-					border-color: #8c8f94;
-				}
-				.eh-btn-submit {
-					background: #98825b !important;
-					border-color: #7a6845 !important;
-					color: #ffffff !important;
-					font-weight: 600 !important;
-					border-radius: 4px !important;
-					box-shadow: none !important;
-				}
-				.eh-btn-submit:hover {
-					background: #7a6845 !important;
-				}
-				.eh-submit-bar {
-					margin-top: 20px;
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-				}
-			</style>
-
+		<div class="wrap eh" id="eh-settings-wrap">
 			<form method="post" action="options.php">
 				<?php settings_fields( 'essential_hardening_group' ); ?>
 
 				<!-- Banner Principal -->
-				<div class="eh-banner">
+				<div class="eh-hero">
 					<div>
-						<h1 class="eh-banner-title">
+						<h1 class="eh-title">
 							<span>🛡️ Essential Hardening & Security</span>
-							<span class="eh-version-badge">v<?php echo esc_html( self::VERSION ); ?></span>
+							<span class="eh-version">v<?php echo esc_html( self::VERSION ); ?></span>
 						</h1>
-						<p class="eh-banner-subtitle">
+						<p class="eh-sub">
 							<?php esc_html_e( 'Suite modular de protección perimetral, control de accesos y endurecimiento de WordPress. Ajuste cada escudo individualmente según las características de su servidor o plugins complementarios.', 'essential-hardening' ); ?>
 						</p>
 					</div>
-					<div class="eh-stats-pill">
+					<div class="eh-pill">
 						<span><?php esc_html_e( 'Estado General:', 'essential-hardening' ); ?></span><br>
 						<strong><?php echo esc_html( (string) $active_count ); ?></strong> / <?php echo esc_html( (string) $total_count ); ?> <?php esc_html_e( 'escudos activos', 'essential-hardening' ); ?>
 					</div>
