@@ -85,6 +85,20 @@ php tests/essential-hardening/run.php
 
 ---
 
+## 🎨 Diseño de los paneles de admin
+
+Todos los paneles comparten el mismo esqueleto visual (encabezado con degradado, pestañas en píldora, tarjetas, interruptores y botones redondeados) con un color de acento propio por plugin:
+
+| Plugin | Prefijo CSS | Acento |
+|---|---|---|
+| `essential-hardening` | `eh-` | verde azulado |
+| `wp-assets-pulse` | `pulse-` | naranja |
+| `wp-mcp-agent-bridge` | `mcp-` | índigo |
+| `wp-site-ops-toolkit` | `ops-` | azul |
+| `modern-wp-migrator` | `mwm-` (`lib/view/assets/css/modern-ui.css`) | rosa |
+
+Cada plugin lleva su propia copia del CSS en `assets/admin.css`, encolada solo en su pantalla, para seguir siendo portable. Para un plugin nuevo, copiar el CSS de `wp-site-ops-toolkit` y cambiar prefijo y variables `--a`, `--ad`, `--a-soft`.
+
 ## 🚀 Publicación de Versiones y Actualizaciones Automáticas (PUC)
 
 El repositorio usa **GitHub Actions** para empaquetar cada plugin en su propio archivo `.zip` e integrarlo con **Plugin Update Checker (PUC)**.

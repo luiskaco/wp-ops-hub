@@ -2,6 +2,7 @@
 
 Una línea por cambio relevante, lo más reciente arriba.
 
+- `2026-11-19` — **feat(paneles de admin):** rediseño visual de los 5 plugins con panel, con el estilo de los plugins de registros de PUPSC (encabezado con degradado, pestañas en píldora, tarjetas de resumen, interruptores y botones redondeados) y un color de acento por plugin. Versiones: `essential-hardening 1.8.1`, `wp-assets-pulse 1.0.1`, `wp-site-ops-toolkit 1.0.1`, `wp-mcp-agent-bridge 1.0.4`, `modern-wp-migrator 7.113.5`. Sin cambios de lógica; el CSS pasó de bloques inline a `assets/admin.css`.
 - `2026-11-13` — **release(wp-mcp-agent-bridge `1.0.3`):** agregado parámetro `featured_image_id` en `create-post` y `update-post` para asignar la imagen destacada (`set_post_thumbnail`).
 - `2026-11-13` — **release(wp-mcp-agent-bridge `1.0.2`):** movido endpoint REST de `/mcp/v1/` a `/mcp/v1/rpc` para evitar colisión con el índice del namespace de WordPress.
 - `2026-11-13` — **release(wp-mcp-agent-bridge `1.0.1`):** preparada versión `1.0.1` (hardening de permisos por objeto, validación de `inputSchema`, rate limiting, validación real de imágenes, assets encolados, generador Base64 en vivo en el panel, PUC para releases de GitHub, i18n y suite de pruebas).
