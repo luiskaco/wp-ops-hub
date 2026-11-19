@@ -7,6 +7,7 @@
 - **ADR-003:** Persistencia ligera en `wp_options` y transients sin tablas SQL personalizadas.
 - **ADR-004:** Validación centralizada de `inputSchema`, autorización por objeto y rate limiting en el router MCP.
 - **ADR-005:** Enrutamiento virtual con fallback y control por hash MD5 para archivos físicos en `wp-llms-txt`.
+- **ADR-006:** `wp-site-ops-toolkit` exige PHP 8.2+ en lugar de mover sus constantes fuera de los traits.
 
 ---
 
@@ -39,3 +40,9 @@
 - **Contexto:** No todos los hostings permiten escribir en `ABSPATH`, y si ya existe un `llms.txt` ajeno en disco no debe destruirse ni sobrescribirse en silencio.
 - **Decisión:** Servir `/llms.txt` y `/llms-full.txt` mediante `add_rewrite_rule` + fallback por `REQUEST_URI` (solo en raíz y sin redirección `301` de barra final), y rastrear los archivos físicos propios mediante su hash MD5 en `wp_llms_txt_managed_files`.
 - **Consecuencias:** Portabilidad total entre hostings sin riesgo de pérdida de archivos creados manualmente por el usuario.
+
+## ADR-006 — `wp-site-ops-toolkit` exige PHP 8.2+
+
+- **Contexto:** El plugin declara constantes dentro de traits, algo que PHP solo permite desde 8.2. En PHP 7.4 a 8.1 daba error fatal al cargar y el CI `PHP Compatibility` fallaba desde el inicio.
+- **Decisión:** Declarar `Requires PHP: 8.2`, no cargar el plugin en versiones anteriores (aviso en el administrador) y excluirlo del lint de CI por debajo de 8.2, en vez de mover las constantes a la clase.
+- **Consecuencias:** Excepción documentada a la compatibilidad PHP 7.4+ del resto de plugins (ver `AGENTS.md`). Sitios con PHP 8.1 o anterior no pueden usarlo.
