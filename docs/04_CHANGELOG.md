@@ -2,6 +2,7 @@
 
 Una línea por cambio relevante, lo más reciente arriba.
 
+- `2026-11-23` — **feat(essential-hardening `1.9.0`):** aviso por correo cuando se bloquean 5 IPs distintas en 1 hora (fuerza bruta en el login o anti-recon), con un correo por hora como máximo. Casilla en el panel, activada por defecto. Además, los 6 correos del plugin (IPs bloqueadas, cambio y acceso de administradores, actualizaciones, integridad del núcleo y código 2FA) pasan a una plantilla HTML común con versión de texto plano.
 - `2026-11-19` — **fix(wp-site-ops-toolkit `1.0.2`):** declara `Requires PHP: 8.2` porque usa constantes dentro de traits (error fatal en PHP 7.4 a 8.1). En versiones anteriores no carga y muestra un aviso en el administrador. El CI de `PHP Compatibility` deja de revisar este plugin por debajo de PHP 8.2.
 - `2026-11-19` — **feat(paneles de admin):** rediseño visual de los 5 plugins con panel, con el estilo de los plugins de registros de PUPSC (encabezado con degradado, pestañas en píldora, tarjetas de resumen, interruptores y botones redondeados) y un color de acento por plugin. Versiones: `essential-hardening 1.8.1`, `wp-assets-pulse 1.0.1`, `wp-site-ops-toolkit 1.0.1`, `wp-mcp-agent-bridge 1.0.4`, `modern-wp-migrator 7.113.5`. Sin cambios de lógica; el CSS pasó de bloques inline a `assets/admin.css`.
 - `2026-11-13` — **release(wp-mcp-agent-bridge `1.0.3`):** agregado parámetro `featured_image_id` en `create-post` y `update-post` para asignar la imagen destacada (`set_post_thumbnail`).

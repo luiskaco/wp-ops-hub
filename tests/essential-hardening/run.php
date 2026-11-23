@@ -70,7 +70,9 @@ function eh_clear_ip_state( string $ip ): void {
 $ip = $_SERVER['REMOTE_ADDR'];
 add_filter( 'essential_hardening_failed_login_delay', '__return_zero' );
 
-// Usuarios temporales
+// Usuarios temporales. Crear el admin dispara la alerta de cambio de administradores:
+// se bloquea el correo mientras tanto para que no salga uno real (p. ej. vía FluentSMTP).
+add_filter( 'pre_wp_mail', '__return_true', 99 );
 $suffix   = wp_generate_password( 6, false );
 $admin_id = wp_insert_user( array(
 	'user_login' => 'eh_test_admin_' . $suffix,
@@ -172,6 +174,7 @@ try {
 	}
 	eh_assert( $r instanceof WP_User, 'si el correo falla, el administrador no queda bloqueado' );
 	remove_all_filters( 'pre_wp_mail' );
+	add_filter( 'pre_wp_mail', '__return_true', 99 ); // Nunca enviar correos reales.
 	remove_all_filters( 'wp_redirect' );
 	delete_transient( 'eh_2fa_rate_' . $admin->ID );
 
@@ -372,8 +375,11 @@ Set-Cookie: x=1";
 	eh_assert( false === $eh->get_default_settings()['core_integrity_check'], 'la verificación del núcleo viene apagada por defecto' );
 
 	remove_all_filters( 'pre_wp_mail' );
+	add_filter( 'pre_wp_mail', '__return_true', 99 ); // Nunca enviar correos reales.
 	delete_transient( 'eh_admin_change_' . $new_admin_id );
 	delete_transient( 'eh_admin_change_' . $editor_id );
+	delete_transient( 'eh_ip_block_window' );
+	delete_transient( 'eh_ip_block_alert_sent' );
 	wp_delete_user( $new_admin_id );
 	wp_delete_user( $sub_id );
 
@@ -461,6 +467,7 @@ Set-Cookie: x=1";
 	remove_all_filters( 'essential_hardening_core_checksums' );
 	remove_all_filters( 'essential_hardening_core_root' );
 	remove_all_filters( 'pre_wp_mail' );
+	add_filter( 'pre_wp_mail', '__return_true', 99 ); // Nunca enviar correos reales.
 
 	// Limpieza del árbol temporal (solo lo creado arriba)
 	$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ), RecursiveIteratorIterator::CHILD_FIRST );
@@ -787,12 +794,64 @@ Set-Cookie: x=1";
 	remove_all_filters( 'essential_hardening_ip_country' );
 	delete_transient( 'eh_geo_' . md5( '201.223.127.28' ) );
 
+	// -----------------------------------------------------------------------
+	eh_section( 'Alerta por ráfaga de IPs bloqueadas' );
+	// -----------------------------------------------------------------------
+	eh_set_options( $eh, array( 'ip_block_alerts' => true, 'throttle_max_attempts' => 5 ) );
+	delete_transient( 'eh_ip_block_window' );
+	delete_transient( 'eh_ip_block_alert_sent' );
+	eh_clear_ip_state( $ip );
+	$sent_mails = array();
+	add_filter( 'pre_wp_mail', function ( $null, $atts ) use ( &$sent_mails ) {
+		$sent_mails[] = $atts;
+		return true; // Simula envío correcto, sin enviar nada.
+	}, 10, 2 );
+
+	$track = new ReflectionMethod( $eh, 'track_ip_block' );
+	$track->setAccessible( true );
+	// 4 IPs de documentación (RFC 5737), una repetida: no debe contar dos veces
+	foreach ( array( '203.0.113.1', '203.0.113.2', '203.0.113.3', '203.0.113.3', '203.0.113.4' ) as $fake_ip ) {
+		$track->invoke( $eh, $fake_ip, 'prueba' );
+	}
+	eh_assert( 0 === count( $sent_mails ), 'con 4 IPs distintas no se envía aviso' );
+
+	// La quinta IP llega por el flujo real: 5 logins fallidos bloquean la IP del test
+	for ( $i = 0; $i < 5; $i++ ) {
+		$eh->record_failed_login( 'nadie' );
+	}
+	eh_assert( 1 === count( $sent_mails ), 'el bloqueo de login de la quinta IP envía un aviso' );
+	$alert = $sent_mails[0] ?? array();
+	eh_assert( false !== strpos( (string) ( $alert['subject'] ?? '' ), '5 IPs bloqueadas' ), 'el asunto indica 5 IPs' );
+	eh_assert( false !== strpos( (string) ( $alert['message'] ?? '' ), '203.0.113.1' ) && false !== strpos( (string) ( $alert['message'] ?? '' ), $ip ), 'el cuerpo lista las IPs' );
+
+	eh_assert( false !== strpos( (string) ( $alert['message'] ?? '' ), '<!DOCTYPE html' ) && false !== strpos( implode( "
+", (array) ( $alert['headers'] ?? array() ) ), 'text/html' ), 'el aviso sale con la plantilla HTML' );
+	$tpl  = new ReflectionMethod( $eh, 'render_email_html' );
+	$tpl->setAccessible( true );
+	$html = $tpl->invoke( $eh, array( 'heading' => 'x', 'rows' => array( array( 'IP', '<script>alert(1)</script>' ) ) ) );
+	eh_assert( false === strpos( $html, '<script>' ) && false !== strpos( $html, '&lt;script&gt;' ), 'la plantilla escapa los datos variables' );
+	$track->invoke( $eh, '203.0.113.6', 'prueba' );
+	eh_assert( 1 === count( $sent_mails ), 'la sexta IP no repite el aviso dentro de la hora' );
+
+	delete_transient( 'eh_ip_block_window' );
+	delete_transient( 'eh_ip_block_alert_sent' );
+	eh_set_options( $eh, array( 'ip_block_alerts' => false ) );
+	$sent_mails = array();
+	foreach ( array( '203.0.113.11', '203.0.113.12', '203.0.113.13', '203.0.113.14', '203.0.113.15' ) as $fake_ip ) {
+		$track->invoke( $eh, $fake_ip, 'prueba' );
+	}
+	eh_assert( 0 === count( $sent_mails ) && false === get_transient( 'eh_ip_block_window' ), 'con la casilla apagada no cuenta ni avisa' );
+	eh_clear_ip_state( $ip );
+	remove_all_filters( 'pre_wp_mail' );
+	add_filter( 'pre_wp_mail', '__return_true', 99 ); // Nunca enviar correos reales.
+
 } finally {
 	delete_transient( 'eh_recon_count_' . md5( '201.223.127.28' ) );
 		delete_transient( 'eh_recon_ban_' . md5( '201.223.127.28' ) );
 	remove_all_filters( 'essential_hardening_ip_country' );
 	// Restaurar el estado del sitio local
 	remove_all_filters( 'pre_wp_mail' );
+	add_filter( 'pre_wp_mail', '__return_true', 99 ); // Nunca enviar correos reales.
 	remove_all_filters( 'wp_redirect' );
 	eh_clear_ip_state( $ip );
 	delete_transient( 'eh_2fa_rate_' . $admin_id );

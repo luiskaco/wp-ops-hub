@@ -60,14 +60,24 @@ trait Essential_Hardening_Two_Factor {
 
 		$site_name = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 		$subject   = sprintf( __( '[Código 2FA] Tu clave de acceso a %s', 'essential-hardening' ), $site_name );
-		$message   = sprintf(
-			"Hola %s,\n\nTu código de verificación de doble factor (2FA) para acceder a %s es:\n\n%s\n\nEste código expira en 10 minutos.\nSi no solicitaste este acceso, te sugerimos cambiar tu contraseña de inmediato.\n\n--\nEssential Hardening & Security",
-			$user->display_name,
-			$site_name,
-			$code
+		$mail_sent = $this->send_template_email(
+			$user->user_email,
+			$subject,
+			array(
+				'level'    => 'info',
+				'heading'  => __( 'Tu código de acceso', 'essential-hardening' ),
+				/* translators: %s: nombre visible del usuario */
+				'greeting' => sprintf( __( 'Hola %s,', 'essential-hardening' ), $user->display_name ),
+				/* translators: %s: nombre del sitio */
+				'intro'    => sprintf( __( 'Este es tu código de verificación en dos pasos para entrar a %s:', 'essential-hardening' ), $site_name ),
+				'code'     => $code,
+				'notes'    => array(
+					__( 'El código vence en 10 minutos. No lo compartas con nadie.', 'essential-hardening' ),
+					__( 'Si no intentaste entrar, alguien conoce tu contraseña: cambiala de inmediato.', 'essential-hardening' ),
+				),
+				'reason'   => __( 'Recibís este correo porque tu cuenta tiene activada la verificación en dos pasos por correo.', 'essential-hardening' ),
+			)
 		);
-
-		$mail_sent = $this->safe_wp_mail( $user->user_email, $subject, $message, array( 'Content-Type: text/plain; charset=UTF-8' ) );
 
 		if ( ! $mail_sent ) {
 			// Si el hosting no tiene servicio de correo configurado o mail() está deshabilitada,

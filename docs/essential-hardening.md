@@ -2,7 +2,7 @@
 
 Suite modular, ultraligera y sin dependencias externas para el endurecimiento y seguridad perimetral integral de sitios WordPress.
 
-- **Versión:** 1.8.0
+- **Versión:** 1.9.0
 - **Licencia:** GPL-2.0-or-later
 - **Compatibilidad:** WordPress 5.8+ | PHP 7.4 - 8.5
 
@@ -180,6 +180,18 @@ Opción `recon_ip_ban` (por defecto `false`; sin ella no se cuenta ni se bloquea
 ### Cambio en 2.4 (anti-enumeración): mapa del sitio, desde 1.7.0
 Desde 1.7.0 también se elimina el proveedor `users` del mapa del sitio de WordPress (`wp_sitemaps_add_provider`), que exponía la lista de autores en `/wp-sitemap-users-1.xml`.
 
+### 2.27. Plantilla de correos — desde 1.9.0
+- `includes/trait-email.php` (`send_template_email()`): cada aviso pasa sus datos (`level`, `heading`, `intro`, `rows`, `lists`, `code`, `button`, `notes`, `reason`) y la plantilla arma el HTML (tablas y estilos en línea, ancho máx. 600 px) y el `AltBody` de texto plano vía `phpmailer_init`.
+- Todo valor variable se escapa con `esc_html` / `esc_url` dentro de la plantilla.
+- Niveles: `alert` (rojo), `warning` (ámbar), `info` (verde azulado del panel).
+
+### 2.26. Alerta por ráfaga de IPs bloqueadas — desde 1.9.0
+- Opción `ip_block_alerts` (por defecto `true`).
+- Cada bloqueo de IP del límite de intentos del login y del anti-recon se anota en el transient `eh_ip_block_window` (una entrada por IP, como mucho 100, ventana de 1 hora).
+- Al juntarse 5 IPs distintas en la ventana (filtro `essential_hardening_ip_block_alert_threshold`; `0` lo desactiva) se manda un correo al destinatario de alertas con cada IP, su motivo y la hora.
+- Pausa entre correos: el transient `eh_ip_block_alert_sent` dura lo mismo que la ventana (filtro `essential_hardening_ip_block_alert_window`, mínimo 5 min), así que llega un solo aviso por hora aunque el ataque siga.
+- Los bloqueos por WAF y honeypot no cuentan: rechazan la petición, no bloquean la IP.
+
 ### 2.25. País y bandera de las IP del registro — opcional, desde 1.8.0
 - Opción `show_ip_country` (por defecto `false`). Con ella apagada el panel no hace ninguna consulta externa.
 - Encendida, el registro de eventos gana una columna *País* y, encima, la tabla **Top 5 de IP bloqueadas** (las 5 IP con más eventos entre los 25 guardados).
@@ -223,6 +235,7 @@ El plugin almacena sus preferencias en una única entrada en `wp_options`:
       'lostpassword_protection'   => true,
       'disable_application_passwords' => false,
       'strong_admin_passwords'    => false,
+      'ip_block_alerts'           => true,
   )
   ```
 
@@ -297,7 +310,8 @@ Notas de comportamiento:
 | `includes/trait-two-factor.php` | Módulo 16: 2FA por correo. |
 | `includes/trait-accounts.php` | Módulos 20 y 22: recuperación de contraseña y contraseñas robustas. |
 | `includes/trait-uploads.php` | Módulo 10: protección de `uploads`. |
-| `includes/trait-notifications.php` | Módulos 14, 15 y 18: avisos de actualizaciones, de inicio de sesión de administradores y de cambios de administradores. |
+| `includes/trait-email.php` | Plantilla HTML común de los correos y su versión de texto plano. |
+| `includes/trait-notifications.php` | Módulos 14, 15, 18 y 19: avisos de actualizaciones, de inicio de sesión de administradores, de cambios de administradores y de ráfagas de IPs bloqueadas. |
 | `includes/trait-integrity.php` | Módulo 19: integridad del núcleo. |
 | `includes/trait-admin.php` | Panel de control: menú, ajustes y pantalla de configuración. |
 

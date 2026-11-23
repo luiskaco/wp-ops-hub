@@ -223,35 +223,40 @@ trait Essential_Hardening_Integrity {
 		);
 
 		$sections = array(
-			'modified'   => __( 'MODIFICADOS (su contenido no coincide con el oficial)', 'essential-hardening' ),
-			'unexpected' => __( 'INESPERADOS (archivos PHP que no pertenecen a WordPress)', 'essential-hardening' ),
-			'missing'    => __( 'FALTANTES', 'essential-hardening' ),
+			'modified'   => __( 'Modificados (no coinciden con el oficial)', 'essential-hardening' ),
+			'unexpected' => __( 'Inesperados (PHP ajeno a WordPress)', 'essential-hardening' ),
+			'missing'    => __( 'Faltantes', 'essential-hardening' ),
 		);
 
-		$message  = "Hola,\n\n";
-		$message .= sprintf( "Essential Hardening comparó los archivos de WordPress de %s con las sumas de control oficiales y encontró diferencias:\n\n", $site_name );
-
+		$lists = array();
 		foreach ( $sections as $key => $label ) {
 			if ( empty( $found[ $key ] ) ) {
 				continue;
 			}
-			$message .= sprintf( "● %s: %d\n", $label, count( $found[ $key ] ) );
-			foreach ( array_slice( $found[ $key ], 0, self::MAX_INTEGRITY_FILES_LISTED ) as $file ) {
-				$message .= '  - ' . $file . "\n";
-			}
-			if ( count( $found[ $key ] ) > self::MAX_INTEGRITY_FILES_LISTED ) {
-				$message .= sprintf( "  … y %d más\n", count( $found[ $key ] ) - self::MAX_INTEGRITY_FILES_LISTED );
-			}
-			$message .= "\n";
+			$lists[] = array(
+				'title' => $label . ': ' . count( $found[ $key ] ),
+				'items' => array_slice( $found[ $key ], 0, self::MAX_INTEGRITY_FILES_LISTED ),
+				'more'  => max( 0, count( $found[ $key ] ) - self::MAX_INTEGRITY_FILES_LISTED ),
+			);
 		}
 
-		$message .= "Qué hacer:\n";
-		$message .= "- Si acabas de actualizar WordPress a mano o un plugin tocó el núcleo a propósito, puede ser normal.\n";
-		$message .= "- Si NO esperabas el cambio, el sitio puede estar comprometido: restaura los archivos del núcleo desde una copia limpia de WordPress, cambia las contraseñas y revisa los usuarios administradores.\n\n";
-		$message .= admin_url( 'options-general.php?page=essential-hardening' ) . "\n\n";
-		$message .= "--\nNotificación enviada por Essential Hardening & Security.";
-
-		$this->safe_wp_mail( $this->get_alert_recipient(), $subject, $message, array( 'Content-Type: text/plain; charset=UTF-8' ) );
+		$this->send_template_email(
+			$this->get_alert_recipient(),
+			$subject,
+			array(
+				'level'   => 'alert',
+				'heading' => __( 'Archivos del núcleo de WordPress alterados', 'essential-hardening' ),
+				/* translators: %s: nombre del sitio */
+				'intro'   => sprintf( __( 'Essential Hardening comparó los archivos de WordPress de %s con las sumas de control oficiales y encontró diferencias.', 'essential-hardening' ), $site_name ),
+				'lists'   => $lists,
+				'button'  => array( 'label' => __( 'Abrir Essential Hardening', 'essential-hardening' ), 'url' => admin_url( 'options-general.php?page=essential-hardening' ) ),
+				'notes'   => array(
+					__( 'Si acabás de actualizar WordPress a mano o un plugin tocó el núcleo a propósito, puede ser normal.', 'essential-hardening' ),
+					__( 'Si no esperabas el cambio, el sitio puede estar comprometido: restaurá el núcleo desde una copia limpia de WordPress, cambiá las contraseñas y revisá los administradores.', 'essential-hardening' ),
+				),
+				'reason'  => __( 'Recibís este correo porque está activada la verificación diaria de integridad del núcleo.', 'essential-hardening' ),
+			)
+		);
 	}
 
 	public function handle_verify_core_now(): void {

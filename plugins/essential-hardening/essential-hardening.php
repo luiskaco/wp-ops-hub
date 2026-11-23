@@ -3,7 +3,7 @@
  * Plugin Name:       Essential Hardening & Security
  * Plugin URI:        https://github.com/luiskaco/utilities_wordpress
  * Description:       Suite ligera, modular y de rendimiento cero para hardening en WordPress. Cortafuegos Micro-WAF, mitigación de fuerza bruta, protección de uploads, bloqueo de enumeración de usuarios, desactivación total de comentarios y spam, cabeceras HTTP defensivas y anonimización de huellas del CMS.
- * Version:           1.8.1
+ * Version:           1.9.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Web Security Tools
@@ -20,6 +20,7 @@ if ( ! defined( 'ESSENTIAL_HARDENING_FILE' ) ) {
 
 // Módulos del plugin: cada uno vive en su propio archivo dentro de includes/.
 require_once __DIR__ . '/includes/trait-support.php';
+require_once __DIR__ . '/includes/trait-email.php';
 require_once __DIR__ . '/includes/trait-updater.php';
 require_once __DIR__ . '/includes/trait-comments.php';
 require_once __DIR__ . '/includes/trait-privacy.php';
@@ -36,6 +37,7 @@ require_once __DIR__ . '/includes/trait-admin.php';
 final class Essential_Hardening {
 
 	use Essential_Hardening_Support,
+		Essential_Hardening_Email,
 		Essential_Hardening_Updater,
 		Essential_Hardening_Comments,
 		Essential_Hardening_Privacy,
@@ -52,7 +54,7 @@ final class Essential_Hardening {
 	/**
 	 * Versión del plugin.
 	 */
-	public const VERSION = '1.8.1';
+	public const VERSION = '1.9.0';
 
 	/**
 	 * Máximo número de eventos de seguridad registrados en el mini-log.
@@ -178,6 +180,8 @@ final class Essential_Hardening {
 			// Módulos v1.8.0 (bloqueo de IP escaneadora y país de las IP). Desactivados: dependen del sitio.
 			'recon_ip_ban'              => false,
 			'show_ip_country'           => false,
+			// Módulo v1.9.0 (aviso por ráfaga de IPs bloqueadas)
+			'ip_block_alerts'           => true,
 		);
 	}
 

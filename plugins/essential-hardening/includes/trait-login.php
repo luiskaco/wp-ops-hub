@@ -86,6 +86,7 @@ trait Essential_Hardening_Login {
 			set_transient( $lockout_key, 1, $lockout_duration );
 			delete_transient( $count_key );
 			$this->log_security_event( 'Fuerza Bruta', $ip, sprintf( __( 'IP bloqueada por %s tras acumular %d fallos consecutivos', 'essential-hardening' ), $this->get_human_lockout_duration( $lockout_duration ), $max_attempts ) );
+			$this->track_ip_block( $ip, __( 'fuerza bruta en el login', 'essential-hardening' ) );
 		} else {
 			// Ventana móvil de conteo por la duración configurada
 			set_transient( $count_key, $attempts, $lockout_duration );

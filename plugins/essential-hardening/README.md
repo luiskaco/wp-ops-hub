@@ -2,7 +2,7 @@
 
 Suite ultraligera, modular y sin dependencias para el endurecimiento (*hardening*) y protección perimetral de cualquier instalación WordPress. Diseñada para proteger portales institucionales, blogs, tiendas o sitios corporativos con cero sobrecarga técnica y sin tablas adicionales en base de datos.
 
-- **Versión:** 1.8.1
+- **Versión:** 1.9.0
 - **Licencia:** GPL-2.0-or-later
 - **Dependencias:** Cero (PHP nativo + Hooks de WordPress)
 
@@ -99,6 +99,8 @@ Suite ultraligera, modular y sin dependencias para el endurecimiento (*hardening
 - Registra bloqueos del Micro-WAF, disparos de la trampa honeypot, bloqueos por fuerza bruta, intentos fallidos de 2FA y sondeo de usuarios.
 - Almacenamiento circular ultraligero en base de datos (`eh_security_events_log`) con `autoload = false`, garantizando cero impacto en el rendimiento o crecimiento de la base de datos.
 - Incluye botón para vaciar el historial con confirmación interactiva.
+- **Correos con diseño (desde 1.9.0):** todos los avisos usan una plantilla HTML común (encabezado del sitio, etiqueta de gravedad, tabla de datos y botón de acción) e incluyen una versión de texto plano para clientes sin HTML.
+- **Alerta por ráfaga de IPs bloqueadas (desde 1.9.0):** activada por defecto. Si se bloquean **5 IPs distintas en menos de 1 hora** (por fuerza bruta en el login o por escanear usuarios), envía un correo con la lista de IPs, el motivo y la hora. Como máximo un correo por hora. Se ajusta con los filtros `essential_hardening_ip_block_alert_threshold` y `essential_hardening_ip_block_alert_window`.
 - **País y bandera de cada IP — opcional (desde 1.8.0):** casilla propia, **desactivada por defecto**. Añade una columna *País* y una tabla **Top 5 de IP bloqueadas** sobre los eventos guardados. Privacidad: envía las IP de los atacantes (no las de tus visitantes) a `ipwho.is`, una sola vez por IP con el resultado guardado 30 días, y el navegador descarga las banderas de `flagcdn.com`. Las IP locales o privadas nunca se consultan.
 
 ---

@@ -108,6 +108,7 @@ trait Essential_Hardening_Privacy {
 				$this->get_human_lockout_duration( $duration )
 			)
 		);
+		$this->track_ip_block( $ip, __( 'escaneo de usuarios (anti-recon)', 'essential-hardening' ) );
 	}
 
 	private function module_hide_wp_version(): void {

@@ -677,6 +677,17 @@ trait Essential_Hardening_Admin {
 						</div>
 
 						<div class="eh-item">
+							<input type="checkbox" id="eh_ip_block_alerts" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[ip_block_alerts]" value="1" <?php checked( $options['ip_block_alerts'] ); ?>>
+							<div class="eh-item-body">
+								<div class="eh-item-title-row">
+									<label for="eh_ip_block_alerts" class="eh-item-label"><?php esc_html_e( 'Alerta por Ráfaga de IPs Bloqueadas', 'essential-hardening' ); ?></label>
+									<span class="eh-tag eh-tag-access"><?php esc_html_e( 'Notificación', 'essential-hardening' ); ?></span>
+								</div>
+								<p class="eh-item-desc"><?php esc_html_e( 'Envía un correo cuando se bloquean 5 IPs distintas en menos de una hora (por fuerza bruta en el login o por escanear usuarios), con la lista de IPs y el motivo. Como máximo un correo por hora, para no llenar tu bandeja durante un ataque.', 'essential-hardening' ); ?></p>
+							</div>
+						</div>
+
+						<div class="eh-item">
 							<input type="checkbox" id="eh_core_integrity_check" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[core_integrity_check]" value="1" <?php checked( $options['core_integrity_check'] ); ?>>
 							<div class="eh-item-body">
 								<div class="eh-item-title-row">

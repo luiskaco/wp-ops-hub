@@ -1,6 +1,6 @@
 <?php
 /**
- * Essential Hardening: Módulos 14, 15 y 18: avisos por correo de actualizaciones pendientes, inicios de sesión de administradores y cambios de administradores.
+ * Essential Hardening: Módulos 14, 15, 18 y 19: avisos por correo de actualizaciones pendientes, inicios de sesión de administradores, cambios de administradores y ráfagas de IPs bloqueadas.
  *
  * Este archivo es parte de la clase Essential_Hardening (se incorpora con `use`).
  * Los métodos conservan visibilidad y comportamiento; solo cambia el archivo donde viven.
@@ -165,51 +165,50 @@ trait Essential_Hardening_Notifications {
 		}
 
 		$site_name = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
-		$site_url  = home_url();
-		$admin_url = admin_url( 'update-core.php' );
 
 		$subject = sprintf(
 			/* translators: %s: Nombre del sitio */
 			__( '[Seguridad] Actualizaciones pendientes en %s', 'essential-hardening' ),
 			$site_name
 		);
-
 		if ( $is_test ) {
 			$subject = '[Prueba] ' . $subject;
 		}
 
-		$message  = "Hola,\n\n";
-		$message .= sprintf( "Essential Hardening ha detectado actualizaciones de seguridad pendientes en tu sitio web %s (%s):\n\n", $site_name, $site_url );
-
+		$lists = array();
 		if ( $core ) {
-			$message .= "● NÚCLEO DE WORDPRESS:\n";
-			$message .= sprintf( "  Nueva versión disponible: WordPress %s\n\n", $core_version );
+			$lists[] = array(
+				'title' => __( 'Núcleo de WordPress', 'essential-hardening' ),
+				/* translators: %s: versión */
+				'items' => array( sprintf( __( 'Nueva versión disponible: WordPress %s', 'essential-hardening' ), $core_version ) ),
+			);
 		}
-
+		$format = static function ( array $item ): string {
+			return sprintf( '%s: %s → %s', $item['name'], $item['current_version'], $item['new_version'] );
+		};
 		if ( ! empty( $plugins ) ) {
-			$message .= "● PLUGINS PENDIENTES DE ACTUALIZAR (" . count( $plugins ) . "):\n";
-			foreach ( $plugins as $p ) {
-				$message .= sprintf( "  - %s: versión actual %s → nueva versión %s\n", $p['name'], $p['current_version'], $p['new_version'] );
-			}
-			$message .= "\n";
+			/* translators: %d: cantidad */
+			$lists[] = array( 'title' => sprintf( __( 'Plugins (%d)', 'essential-hardening' ), count( $plugins ) ), 'items' => array_map( $format, $plugins ) );
 		}
-
 		if ( ! empty( $themes ) ) {
-			$message .= "● TEMAS PENDIENTES DE ACTUALIZAR (" . count( $themes ) . "):\n";
-			foreach ( $themes as $t ) {
-				$message .= sprintf( "  - %s: versión actual %s → nueva versión %s\n", $t['name'], $t['current_version'], $t['new_version'] );
-			}
-			$message .= "\n";
+			/* translators: %d: cantidad */
+			$lists[] = array( 'title' => sprintf( __( 'Temas (%d)', 'essential-hardening' ), count( $themes ) ), 'items' => array_map( $format, $themes ) );
 		}
 
-		$message .= "Mantener los plugins y temas al día es la principal medida para evitar intrusiones y vulnerabilidades en WordPress.\n\n";
-		$message .= "Podés aplicar las actualizaciones directamente desde tu panel de administración:\n";
-		$message .= $admin_url . "\n\n";
-		$message .= "--\nNotificación enviada por Essential Hardening & Security.";
-
-		$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
-
-		return $this->safe_wp_mail( $recipient, $subject, $message, $headers );
+		return $this->send_template_email(
+			$recipient,
+			$subject,
+			array(
+				'level'   => 'warning',
+				'heading' => $is_test ? __( 'Correo de prueba: actualizaciones pendientes', 'essential-hardening' ) : __( 'Hay actualizaciones pendientes', 'essential-hardening' ),
+				/* translators: %s: nombre del sitio */
+				'intro'   => sprintf( __( 'Essential Hardening detectó actualizaciones pendientes en %s.', 'essential-hardening' ), $site_name ),
+				'lists'   => $lists,
+				'button'  => array( 'label' => __( 'Ir a Actualizaciones', 'essential-hardening' ), 'url' => admin_url( 'update-core.php' ) ),
+				'notes'   => array( __( 'Mantener plugins, temas y WordPress al día es la medida que más intrusiones evita.', 'essential-hardening' ) ),
+				'reason'  => __( 'Recibís este correo porque están activados los avisos de actualizaciones.', 'essential-hardening' ),
+			)
+		);
 	}
 
 	private function module_admin_login_alerts(): void {
@@ -238,18 +237,25 @@ trait Essential_Hardening_Notifications {
 			$site_name
 		);
 
-		$message  = "Hola,\n\n";
-		$message .= sprintf( "Se ha iniciado sesión con cuenta de Administrador en tu sitio %s:\n\n", $site_name );
-		$message .= sprintf( "● Usuario: %s\n", $user_login );
-		$message .= sprintf( "● Fecha y Hora: %s\n", $datetime );
-		$message .= sprintf( "● Dirección IP: %s\n", $ip );
-		$message .= sprintf( "● Dispositivo / Navegador: %s\n\n", $user_agent );
-		$message .= "Si fuiste vos, podés ignorar este correo con tranquilidad.\n";
-		$message .= "Si NO reconocés este acceso, cambiá tu contraseña inmediatamente desde:\n";
-		$message .= wp_lostpassword_url() . "\n\n";
-		$message .= "--\nNotificación enviada por Essential Hardening & Security.";
-
-		$this->safe_wp_mail( $recipient, $subject, $message, array( 'Content-Type: text/plain; charset=UTF-8' ) );
+		$this->send_template_email(
+			$recipient,
+			$subject,
+			array(
+				'level'   => 'info',
+				'heading' => __( 'Un administrador inició sesión', 'essential-hardening' ),
+				/* translators: %s: nombre del sitio */
+				'intro'   => sprintf( __( 'Se inició sesión con una cuenta de Administrador en %s.', 'essential-hardening' ), $site_name ),
+				'rows'    => array(
+					array( __( 'Usuario', 'essential-hardening' ), $user_login ),
+					array( __( 'Fecha y hora', 'essential-hardening' ), $datetime ),
+					array( __( 'Dirección IP', 'essential-hardening' ), $ip ),
+					array( __( 'Navegador', 'essential-hardening' ), $user_agent ),
+				),
+				'button'  => array( 'label' => __( 'No fui yo: cambiar contraseña', 'essential-hardening' ), 'url' => wp_lostpassword_url() ),
+				'notes'   => array( __( 'Si fuiste vos, podés ignorar este correo.', 'essential-hardening' ) ),
+				'reason'  => __( 'Recibís este correo porque están activadas las alertas de acceso de administradores.', 'essential-hardening' ),
+			)
+		);
 	}
 
 	private function module_admin_change_alerts(): void {
@@ -309,17 +315,121 @@ trait Essential_Hardening_Notifications {
 			$site_name
 		);
 
-		$message  = "Hola,\n\n";
-		$message .= $headline . " en tu sitio " . $site_name . ":\n\n";
-		$message .= sprintf( "● Usuario afectado: %s (%s)\n", $target->user_login, $target->user_email );
-		$message .= sprintf( "● Cambio hecho por: %s\n", $actor_name );
-		$message .= sprintf( "● Fecha y Hora: %s\n", current_time( 'Y-m-d H:i:s' ) );
-		$message .= sprintf( "● Dirección IP: %s\n\n", $ip );
-		$message .= "Si lo hiciste tú, puedes ignorar este correo.\n";
-		$message .= "Si NO reconoces este cambio, revisa los usuarios y cambia las contraseñas de inmediato:\n";
-		$message .= admin_url( 'users.php?role=administrator' ) . "\n\n";
-		$message .= "--\nNotificación enviada por Essential Hardening & Security.";
+		$this->send_template_email(
+			$this->get_alert_recipient(),
+			$subject,
+			array(
+				'level'   => 'alert',
+				'heading' => $headline,
+				/* translators: %s: nombre del sitio */
+				'intro'   => sprintf( __( 'Hubo un cambio en los administradores de %s.', 'essential-hardening' ), $site_name ),
+				'rows'    => array(
+					array( __( 'Usuario afectado', 'essential-hardening' ), $target->user_login . ' (' . $target->user_email . ')' ),
+					array( __( 'Cambio hecho por', 'essential-hardening' ), $actor_name ),
+					array( __( 'Fecha y hora', 'essential-hardening' ), current_time( 'Y-m-d H:i:s' ) ),
+					array( __( 'Dirección IP', 'essential-hardening' ), $ip ),
+				),
+				'button'  => array( 'label' => __( 'Revisar administradores', 'essential-hardening' ), 'url' => admin_url( 'users.php?role=administrator' ) ),
+				'notes'   => array(
+					__( 'Si lo hiciste vos, podés ignorar este correo.', 'essential-hardening' ),
+					__( 'Si no reconocés el cambio, quitá ese usuario y cambiá las contraseñas de inmediato: crear un administrador oculto es típico de un atacante.', 'essential-hardening' ),
+				),
+				'reason'  => __( 'Recibís este correo porque están activadas las alertas de cambios de administradores.', 'essential-hardening' ),
+			)
+		);
+	}
+	/**
+	 * Registra una IP recién bloqueada y avisa por correo si en la última hora
+	 * se juntan varias IPs distintas bloqueadas (señal de ataque distribuido).
+	 *
+	 * Se llama desde el límite de intentos del login y desde el anti-recon.
+	 */
+	private function track_ip_block( string $ip, string $reason ): void {
+		if ( empty( $this->options['ip_block_alerts'] ) || '' === $ip ) {
+			return;
+		}
 
-		$this->safe_wp_mail( $this->get_alert_recipient(), $subject, $message, array( 'Content-Type: text/plain; charset=UTF-8' ) );
+		/**
+		 * Cantidad de IPs distintas bloqueadas dentro de la ventana que dispara el aviso.
+		 *
+		 * @param int $threshold Por defecto 5. 0 desactiva el aviso.
+		 */
+		$threshold = absint( apply_filters( 'essential_hardening_ip_block_alert_threshold', 5 ) );
+		if ( 0 === $threshold ) {
+			return;
+		}
+
+		/**
+		 * Segundos de la ventana en que se cuentan los bloqueos (y pausa mínima entre correos).
+		 *
+		 * @param int $window Por defecto 1 hora.
+		 */
+		$window = max( 5 * MINUTE_IN_SECONDS, absint( apply_filters( 'essential_hardening_ip_block_alert_window', HOUR_IN_SECONDS ) ) );
+		$now    = time();
+
+		$blocks = get_transient( 'eh_ip_block_window' );
+		$blocks = is_array( $blocks ) ? $blocks : array();
+
+		// Quitar bloqueos viejos y registrar el actual (una entrada por IP: cuenta IPs distintas)
+		$blocks = array_filter(
+			$blocks,
+			static function ( $entry ) use ( $now, $window ) {
+				return is_array( $entry ) && isset( $entry['time'] ) && ( $now - (int) $entry['time'] ) < $window;
+			}
+		);
+		$blocks[ md5( $ip ) ] = array(
+			'ip'     => $ip,
+			'reason' => $reason,
+			'time'   => $now,
+		);
+		// Tope de memoria ante ataques con miles de IPs
+		if ( count( $blocks ) > 100 ) {
+			$blocks = array_slice( $blocks, -100, null, true );
+		}
+		set_transient( 'eh_ip_block_window', $blocks, $window );
+
+		if ( count( $blocks ) < $threshold || get_transient( 'eh_ip_block_alert_sent' ) ) {
+			return;
+		}
+
+		// Un correo por ventana como máximo, aunque sigan llegando bloqueos
+		set_transient( 'eh_ip_block_alert_sent', 1, $window );
+		$this->send_ip_block_alert( $blocks, $window );
+	}
+
+	/**
+	 * @param array<string, array{ip: string, reason: string, time: int}> $blocks
+	 */
+	private function send_ip_block_alert( array $blocks, int $window ): void {
+		$site_name = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+		$minutes   = (int) round( $window / MINUTE_IN_SECONDS );
+
+		$subject = sprintf(
+			/* translators: 1: cantidad de IPs, 2: nombre del sitio */
+			__( '[Alerta de Seguridad] %1$d IPs bloqueadas en %2$s', 'essential-hardening' ),
+			count( $blocks ),
+			$site_name
+		);
+
+		$items = array();
+		foreach ( $blocks as $entry ) {
+			$items[] = sprintf( '%s — %s (%s)', $entry['ip'], $entry['reason'], wp_date( 'Y-m-d H:i:s', (int) $entry['time'] ) );
+		}
+
+		$this->send_template_email(
+			$this->get_alert_recipient(),
+			$subject,
+			array(
+				'level'   => 'alert',
+				/* translators: %d: cantidad de IPs */
+				'heading' => sprintf( __( '%d IPs bloqueadas en poco tiempo', 'essential-hardening' ), count( $blocks ) ),
+				/* translators: 1: cantidad de IPs, 2: minutos, 3: nombre del sitio */
+				'intro'   => sprintf( __( 'Essential Hardening bloqueó %1$d direcciones IP distintas en los últimos %2$d minutos en %3$s. Puede ser un ataque de fuerza bruta o un escaneo repartido entre varias IPs.', 'essential-hardening' ), count( $blocks ), $minutes, $site_name ),
+				'lists'   => array( array( 'title' => __( 'IPs bloqueadas', 'essential-hardening' ), 'items' => $items ) ),
+				'button'  => array( 'label' => __( 'Ver registro de eventos', 'essential-hardening' ), 'url' => admin_url( 'options-general.php?page=essential-hardening' ) ),
+				'notes'   => array( __( 'Los bloqueos se levantan solos al cumplirse su duración. No vas a recibir otro aviso de este tipo durante la próxima hora.', 'essential-hardening' ) ),
+				'reason'  => __( 'Recibís este correo porque está activada la alerta por ráfaga de IPs bloqueadas.', 'essential-hardening' ),
+			)
+		);
 	}
 }
