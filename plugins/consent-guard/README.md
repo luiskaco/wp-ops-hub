@@ -1,4 +1,4 @@
-# Consent Guard
+# Permisio
 
 Banner de consentimiento de cookies para WordPress, pensado para el RGPD y las leyes de privacidad de EE. UU.
 
@@ -15,10 +15,11 @@ Banner de consentimiento de cookies para WordPress, pensado para el RGPD y las l
 - **Registro de consentimientos** con IP anonimizada, borrado automático por antigüedad y exportación a CSV.
 - **Escáner pasivo** de cookies: solo lee páginas, nunca envía formularios.
 - **Al retirar un permiso**, se borran las cookies de esa categoría y se recarga la página.
+- **Actualizaciones automáticas** desde los releases de GitHub, como cualquier plugin del escritorio.
 
 ## Uso
 
-1. Activa el plugin y entra en **Ajustes > Consent Guard**.
+1. Activa el plugin y entra en **Ajustes > Permisio**.
 2. En **Cookies**, pulsa «Escanear ahora» y revisa las categorías.
 3. En **Banner**, ajusta los textos, los colores y la URL de tu política de cookies.
 

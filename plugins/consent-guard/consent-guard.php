@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Consent Guard
+ * Plugin Name:       Permisio – Cookie Consent & GDPR
  * Plugin URI:        https://github.com/luiskaco/utilities_wordpress
  * Description:       Banner de consentimiento de cookies (RGPD y leyes de EE. UU.): categorías, bloqueo de scripts apto para caché, Google Consent Mode v2, registro de consentimientos exportable y escáner pasivo de cookies.
  * Version:           1.0.0
@@ -33,7 +33,7 @@ if ( version_compare( PHP_VERSION, CONSENT_GUARD_MIN_PHP, '<' ) ) {
 				return;
 			}
 			printf(
-				'<div class="notice notice-error"><p><strong>Consent Guard</strong> %s</p></div>',
+				'<div class="notice notice-error"><p><strong>Permisio</strong> %s</p></div>',
 				esc_html(
 					sprintf(
 						/* translators: 1: versión mínima de PHP, 2: versión de PHP del servidor */
@@ -53,7 +53,7 @@ if ( version_compare( PHP_VERSION, CONSENT_GUARD_MIN_PHP, '<' ) ) {
 				esc_html(
 					sprintf(
 						/* translators: %s: versión mínima de PHP */
-						__( 'Consent Guard requiere PHP %s o superior.', 'consent-guard' ),
+						__( 'Permisio requiere PHP %s o superior.', 'consent-guard' ),
 						CONSENT_GUARD_MIN_PHP
 					)
 				),

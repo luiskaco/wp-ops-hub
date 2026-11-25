@@ -1,7 +1,8 @@
-# Documentación Técnica: Consent Guard
+# Documentación Técnica: Permisio
 
 Banner de consentimiento de cookies escrito desde cero a partir del análisis de CookieAdmin 1.2.2 (Softaculous, LGPL-2.1). No reutiliza su código: solo se tomó como referencia funcional.
 
+- **Nombre comercial:** Permisio. El slug técnico sigue siendo `consent-guard` (carpeta, ZIP, tag, text domain, opciones y endpoint REST), para no tocar identificadores.
 - **Slug:** `consent-guard`
 - **Versión:** `1.0.0`
 - **Compatibilidad:** WordPress 6.7+ | **PHP 8.4 - 8.5** (ADR-007)
@@ -12,7 +13,7 @@ Banner de consentimiento de cookies escrito desde cero a partir del análisis de
 
 ## 1. Problemas de CookieAdmin que se evitaron
 
-| CookieAdmin 1.2.2 | Consent Guard |
+| CookieAdmin 1.2.2 | Permisio |
 |---|---|
 | El escáner envía **todos** los formularios POST con datos falsos (comentarios, contacto, login, checkout) y desactiva SSL | Escáner pasivo: solo GET a la portada y las 9 páginas más recientes del propio host, con `wp_safe_remote_get` |
 | Guardado de consentimientos (Pro) sin nonce ni límite: se puede llenar la tabla | REST con esquema estricto, comprobación de `Origin` y 20 peticiones cada 10 minutos por IP anonimizada (ADR-009) |
@@ -44,6 +45,7 @@ Clases `final` con namespace `ConsentGuard` y autoloader propio (`ConsentGuard\A
 | `CookieRegistry` | Lista de cookies del sitio (`wp_options`, sin autoload) |
 | `Scanner` | Escaneo pasivo y sugerencia de cookies por servicio detectado |
 | `Shortcodes` | `[consent_guard_preferences]` y `[consent_guard_cookies]` |
+| `Updater` | Actualizaciones desde los releases `consent-guard-v*` de GitHub con Plugin Update Checker (`vendor/`). Revisa hasta 100 releases porque el monorepo publica los de todos los plugins juntos |
 | `Admin\AdminPage` / `Admin\AdminActions` | Pantalla con pestañas y acciones en `admin-post.php` (nonce + `manage_options`) |
 
 ## 3. Flujo de consentimiento
@@ -69,6 +71,7 @@ Clases `final` con namespace `ConsentGuard` y autoloader propio (`ConsentGuard\A
 | `{prefix}consent_guard_log` | `consent_id`, `created_at` (UTC), `revision`, `action`, `categories`, `ip_anon` |
 | Transients `cg_rl_*` | Contadores del límite de peticiones (10 min) |
 | Cron `consent_guard_prune_log` | Poda diaria según `log_retention_days` |
+| `external_updates-consent-guard` (sin autoload) | Estado de Plugin Update Checker |
 
 `uninstall.php` lo borra todo; la tabla solo si «Conservar los registros al desinstalar» está apagado. En multisitio recorre todos los sitios.
 
@@ -76,4 +79,4 @@ Clases `final` con namespace `ConsentGuard` y autoloader propio (`ConsentGuard\A
 
 | Versión | Fecha | Cambio |
 |---|---|---|
-| `1.0.0` | 2026-11-25 | Primera versión. |
+| `1.0.0` | 2026-11-25 | Primera versión, con actualizaciones automáticas desde GitHub. |

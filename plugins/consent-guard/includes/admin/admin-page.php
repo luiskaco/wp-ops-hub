@@ -1,6 +1,6 @@
 <?php
 /**
- * Pantalla Ajustes > Consent Guard, con pestañas.
+ * Pantalla Ajustes > Permisio, con pestañas.
  *
  * @package ConsentGuard
  */
@@ -34,8 +34,8 @@ final class AdminPage {
 
 	public static function menu(): void {
 		add_options_page(
-			__( 'Consent Guard', 'consent-guard' ),
-			__( 'Consent Guard', 'consent-guard' ),
+			__( 'Permisio', 'consent-guard' ),
+			__( 'Permisio', 'consent-guard' ),
 			AdminActions::CAPABILITY,
 			self::SLUG,
 			array( self::class, 'render' )
@@ -93,7 +93,7 @@ final class AdminPage {
 			<div class="cga-hero">
 				<div>
 					<span class="cga-eyebrow"><span class="dashicons dashicons-privacy"></span> <?php esc_html_e( 'Privacidad y cookies', 'consent-guard' ); ?></span>
-					<h1 class="cga-title">Consent Guard <span class="cga-version">v<?php echo esc_html( Plugin::VERSION ); ?></span></h1>
+					<h1 class="cga-title">Permisio <span class="cga-version">v<?php echo esc_html( Plugin::VERSION ); ?></span></h1>
 					<p class="cga-sub"><?php esc_html_e( 'Banner de consentimiento, bloqueo de scripts de rastreo y registro de consentimientos.', 'consent-guard' ); ?></p>
 				</div>
 				<div class="cga-pill">

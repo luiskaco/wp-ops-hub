@@ -2,6 +2,8 @@
 
 Una línea por cambio relevante, lo más reciente arriba.
 
+- `2026-11-25` — **chore(consent-guard):** nombre comercial **Permisio – Cookie Consent & GDPR** (cabecera, menú, panel, README y guías). El slug `consent-guard` no cambia. `README.es.md` suma el plugin y sus versiones quedan al día.
+- `2026-11-25` — **feat(consent-guard `1.0.0`):** actualizaciones automáticas con Plugin Update Checker (releases `consent-guard-v*`, hasta 100 releases revisados). +7 pruebas (62 en total). `wp-assets-pulse` y `wp-site-ops-toolkit` siguen sin PUC.
 - `2026-11-25` — **test(wp-llms-txt):** primera suite, `tests/wp-llms-txt/run.php` (46 pruebas, ok en PHP 8.4 y 8.5): permisos y nonce del panel, sanitización, borrador sin autoguardado, archivos físicos ajenos que no se pisan ni se borran, importación (path traversal, BOM, UTF-8, límite de 2 MB) y endpoints por HTTP. Deja el sitio local como estaba.
 - `2026-11-25` — **docs:** tabla «Historial de cambios» en las 6 guías que no la tenían (`essential-hardening`, `modern-wp-migrator`, `wp-assets-pulse`, `wp-llms-txt`, `wp-mcp-agent-bridge`, `wp-site-ops-toolkit`), armada con este changelog, los tags y el historial de git.
 - `2026-11-25` — **docs:** catálogo y guías alineados con las versiones reales (`modern-wp-migrator 7.113.5`, `wp-assets-pulse 1.0.1`, `wp-mcp-agent-bridge 1.0.4`, `wp-site-ops-toolkit 1.0.2`); `RF-08` para `consent-guard` y excepciones de PHP y SQL en `RNF-01`/`RNF-02` del PRD.

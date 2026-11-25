@@ -43,7 +43,7 @@ final class ScriptBlocker {
 		} catch ( \Throwable $e ) {
 			// Nunca romper la página por un fallo del bloqueador.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Consent Guard: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Permisio: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 			return $html;
 		}

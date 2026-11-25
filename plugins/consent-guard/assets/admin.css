@@ -1,4 +1,4 @@
-/* Consent Guard — panel de administración. Sistema visual compartido (estilo PUPSC), acento propio. */
+/* Permisio — panel de administración. Sistema visual compartido (estilo PUPSC), acento propio. */
 .cga {
 	--a: #7e22ce;
 	--ad: #6b21a8;
@@ -156,7 +156,7 @@
 .cga-flex { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 @media (max-width: 782px) { .cga-hero { padding: 22px 20px; } .cga-title { font-size: 22px; } }
 
-/* Consent Guard: extras del panel */
+/* Permisio: extras del panel */
 .cga-field input[type="color"] { width: 64px; height: 38px; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; }
 .cga-field input[type="url"], .cga-field input[type="text"], .cga-field input[type="number"], .cga-field select { max-width: 100%; }
 .cga-table select { min-width: 140px; padding: 5px 28px 5px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; }

@@ -141,7 +141,7 @@ final class CookieRegistry {
 			'description' => __( 'Guarda tu elección de cookies para no volver a preguntarte.', 'consent-guard' ),
 			/* translators: %d: número de días */
 			'duration'    => sprintf( _n( '%d día', '%d días', Settings::int( 'consent_days' ), 'consent-guard' ), Settings::int( 'consent_days' ) ),
-			'source'      => 'Consent Guard',
+			'source'      => 'Permisio',
 		);
 	}
 }

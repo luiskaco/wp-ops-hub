@@ -1,4 +1,4 @@
-/* Consent Guard — banner y panel de preferencias. Colores desde variables que define el admin. */
+/* Permisio — banner y panel de preferencias. Colores desde variables que define el admin. */
 .cg, .cg-cookie-list {
 	--cg-bg: #ffffff;
 	--cg-text: #1f2430;

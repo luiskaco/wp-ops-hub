@@ -1,5 +1,5 @@
 /**
- * Consent Guard — lógica del banner en el navegador.
+ * Permisio — lógica del banner en el navegador.
  *
  * - Lee y guarda la elección en la cookie propia (JSON: v, id, r, c, t).
  * - Activa los scripts que el servidor dejó en type="text/plain" según las categorías aceptadas.
