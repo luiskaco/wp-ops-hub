@@ -42,9 +42,13 @@ jobs:
           # error_reporting=-1: los avisos "Deprecated" de compilación también hacen fallar
           fail=0
           total=0
-          # wp-site-ops-toolkit exige PHP 8.2+ (constantes en traits): no se revisa en versiones anteriores.
-          exclude='plugins/wp-site-ops-toolkit/*'
-          if [ "$(php -r 'echo version_compare(PHP_VERSION, "8.2", ">=") ? 1 : 0;')" = "1" ]; then exclude='__ninguno__'; fi
+          # Plugins que exigen una versión mínima propia: no se revisan por debajo de ella.
+          #   wp-site-ops-toolkit: PHP 8.2+ (constantes en traits, ADR-006).
+          #   consent-guard/includes: PHP 8.4+ (ADR-007); su archivo principal sí se revisa siempre.
+          at_least() { [ "$(php -r "echo version_compare(PHP_VERSION, '$1', '>=') ? 1 : 0;")" = "1" ]; }
+          ex1='__ninguno__'; ex2='__ninguno__'
+          at_least 8.2 || ex1='plugins/wp-site-ops-toolkit/*'
+          at_least 8.4 || ex2='plugins/consent-guard/includes/*'
           while IFS= read -r file; do
             total=$((total + 1))
             out=$(php -n -d error_reporting=-1 -d display_errors=1 -l "$file" 2>&1) || true
@@ -52,6 +56,6 @@ jobs:
               "No syntax errors detected"*) ;;
               *) echo "::error file=${file}::${out}"; fail=1 ;;
             esac
-          done < <(find plugins -name '*.php' -not -path "$exclude")
+          done < <(find plugins -name '*.php' -not -path "$ex1" -not -path "$ex2")
           echo "Archivos revisados: ${total}"
           exit "$fail"
