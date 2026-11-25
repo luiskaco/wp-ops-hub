@@ -2,6 +2,7 @@
 
 Una línea por cambio relevante, lo más reciente arriba.
 
+- `2026-11-25` — **release(consent-guard `1.0.0`):** publicado como **Permisio** (tag `consent-guard-v1.0.0`, ZIP en el release). Comprobado que PUC encuentra la versión y su ZIP en GitHub.
 - `2026-11-25` — **chore(consent-guard):** nombre comercial **Permisio – Cookie Consent & GDPR** (cabecera, menú, panel, README y guías). El slug `consent-guard` no cambia. `README.es.md` suma el plugin y sus versiones quedan al día.
 - `2026-11-25` — **feat(consent-guard `1.0.0`):** actualizaciones automáticas con Plugin Update Checker (releases `consent-guard-v*`, hasta 100 releases revisados). +7 pruebas (62 en total). `wp-assets-pulse` y `wp-site-ops-toolkit` siguen sin PUC.
 - `2026-11-25` — **test(wp-llms-txt):** primera suite, `tests/wp-llms-txt/run.php` (46 pruebas, ok en PHP 8.4 y 8.5): permisos y nonce del panel, sanitización, borrador sin autoguardado, archivos físicos ajenos que no se pisan ni se borran, importación (path traversal, BOM, UTF-8, límite de 2 MB) y endpoints por HTTP. Deja el sitio local como estaba.
