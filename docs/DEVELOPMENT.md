@@ -107,7 +107,9 @@ Un cambio grande es una función nueva, un cambio de comportamiento visible, una
    git push origin wp-llms-txt-v1.0.1
    ```
 3. GitHub Actions empaquetará automáticamente la carpeta del plugin en `<slug-plugin>.zip` y creará un Release en GitHub.
-4. Cualquier sitio WordPress con el plugin instalado detectará la actualización y permitirá actualizar en un clic desde el escritorio.
+4. Los sitios con el plugin instalado detectan la actualización y la ofrecen en un clic. Solo en los plugins que traen PUC en `vendor/`: hoy todos menos `wp-assets-pulse` y `wp-site-ops-toolkit`.
+
+> PUC revisa por defecto solo los últimos 20 releases del repo, que son de todos los plugins juntos. Si un plugin pasa mucho tiempo sin publicar, su último release puede quedar fuera y los sitios dejan de ver actualizaciones. `consent-guard` ya revisa 100.
 
 > Sube **un tag por vez**. Si se suben varios a la vez, GitHub puede no disparar el workflow; en ese caso se lanza a mano:
 

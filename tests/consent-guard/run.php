@@ -1,6 +1,6 @@
 <?php
 /**
- * Pruebas de Consent Guard contra el WordPress local.
+ * Pruebas de Permisio contra el WordPress local.
  *
  * Uso (PHP 8.4+ con mysqli):
  *   php tests/consent-guard/run.php
@@ -40,7 +40,7 @@ $_SERVER['REQUEST_METHOD'] = 'GET';
 require dirname( __DIR__, 2 ) . '/wp-load.php';
 
 if ( ! class_exists( Settings::class ) ) {
-	exit( "Consent Guard no está cargado: actívalo en el WordPress local (requiere PHP 8.4+).\n" );
+	exit( "Permisio no está cargado: actívalo en el WordPress local (requiere PHP 8.4+).\n" );
 }
 
 // ---------------------------------------------------------------------------
@@ -281,6 +281,30 @@ try {
 	$config = Frontend::config();
 	cg_assert( array( 'functional', 'analytics', 'marketing' ) === $config['categories'], 'la configuración del JS solo expone categorías opcionales' );
 	cg_assert( in_array( '_evil', $config['cookies']['analytics'] ?? array(), true ), 'la configuración incluye las cookies a borrar por categoría' );
+
+	// -----------------------------------------------------------------------
+	cg_section( 'Actualizaciones desde GitHub (PUC)' );
+	// -----------------------------------------------------------------------
+	cg_assert( class_exists( '\YahnisElsts\PluginUpdateChecker\v5\PucFactory', false ), 'Plugin Update Checker queda cargado' );
+
+	$release = (object) array( 'version' => 'consent-guard-v1.2.3' );
+	cg_assert( '1.2.3' === ConsentGuard\Updater::normalizeVersion( $release )->version, 'el tag consent-guard-v1.2.3 se compara como 1.2.3' );
+	$other = (object) array( 'version' => 'wp-llms-txt-v9.9.9' );
+	cg_assert( 'wp-llms-txt-v9.9.9' === ConsentGuard\Updater::normalizeVersion( $other )->version, 'no toca el tag de otro plugin' );
+	cg_assert( null === ConsentGuard\Updater::normalizeVersion( null ), 'tolera una respuesta vacía' );
+
+	$api       = 'https://api.github.com/repos/luiskaco/wp-ops-hub/contents/';
+	$requested = array();
+	$fake      = static function ( $preempt, $args, $url ) use ( &$requested ) {
+		$requested[] = $url;
+		return array( 'body' => 'fake', 'response' => array( 'code' => 200 ) );
+	};
+	add_filter( 'pre_http_request', $fake, 1, 3 );
+	$rewritten = ConsentGuard\Updater::rewriteContentsRequest( false, array(), $api . 'consent-guard.php?ref=main' );
+	remove_filter( 'pre_http_request', $fake, 1 );
+	cg_assert( array( $api . 'plugins/consent-guard/consent-guard.php?ref=main' ) === $requested && 'fake' === ( $rewritten['body'] ?? '' ), 'la cabecera se lee desde plugins/consent-guard/ del monorepo' );
+	cg_assert( false === ConsentGuard\Updater::rewriteContentsRequest( false, array(), 'https://api.github.com/repos/otro/repo/contents/consent-guard.php' ), 'no reescribe peticiones de otro repositorio' );
+	cg_assert( false === ConsentGuard\Updater::rewriteContentsRequest( false, array(), $api . 'essential-hardening.php' ), 'no reescribe la cabecera de otro plugin' );
 } finally {
 	// Restaurar el estado.
 	if ( false === $original_settings ) {

@@ -29,6 +29,7 @@ final class Plugin {
 
 		RestController::register();
 		Shortcodes::register();
+		Updater::register();
 
 		if ( is_admin() ) {
 			Admin\AdminPage::register();

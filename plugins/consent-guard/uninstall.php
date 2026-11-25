@@ -21,6 +21,7 @@ function consent_guard_uninstall_site() {
 	delete_option( 'consent_guard_settings' );
 	delete_option( 'consent_guard_cookies' );
 	delete_option( 'consent_guard_last_scan' );
+	delete_option( 'external_updates-consent-guard' ); // Estado de Plugin Update Checker.
 	wp_clear_scheduled_hook( 'consent_guard_prune_log' );
 
 	// Contadores del límite de peticiones.
