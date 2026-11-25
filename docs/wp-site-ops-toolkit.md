@@ -3,7 +3,7 @@
 Suite modular y ultraligera de herramientas esenciales para mantenimiento, optimización y depuración de WordPress en producción y staging.
 
 - **Nombre clave / Slug:** `wp-site-ops-toolkit`
-- **Versión:** `1.0.0`
+- **Versión:** `1.0.2`
 - **Licencia:** GPL-2.0-or-later
 - **Compatibilidad:** WordPress 5.8+ | **PHP 8.2 - 8.5** (no carga en PHP 8.1 o anterior: muestra un aviso en el administrador)
 - **Ubicación:** `plugins/wp-site-ops-toolkit/`
@@ -97,3 +97,11 @@ Todas las preferencias se guardan en un único registro serializado:
   )
   ```
 - **Clave independiente para logs de correo:** `wp_site_ops_mail_log` (array con un máximo de 50 elementos, `autoload = false`).
+
+## 5. Historial de cambios
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| `1.0.2` | 2026-11-19 | Declara `Requires PHP: 8.2`; en versiones anteriores no carga y muestra un aviso (ADR-006). |
+| `1.0.1` | 2026-11-19 | Rediseño del panel de admin (CSS en `assets/admin.css`). Sin cambios de lógica. |
+| `1.0.0` | 2026-11-11 | Primera versión: modo mantenimiento 503, limpieza de base de datos y depurador de correo. |

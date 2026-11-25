@@ -24,10 +24,11 @@ Every plugin inside `plugins/` is completely standalone, decoupled from third-pa
 | Plugin | Domain | Version | Status | Key Capabilities |
 |---|---|---|---|---|
 | [**Essential Hardening & Security**](./plugins/essential-hardening/) | Security & Defense | `1.9.0` | `Production` | 25 defensive shields: blocked-IP burst email alert, Micro-WAF (SQLi/XSS/RCE/LFI), login rate-limiting with tarpit delay, anti-bot honeypot, email 2FA, core integrity verifier (checksums), upload directory protection, user enumeration blocking, and security event mini-log. |
-| [**WP MCP Agent Bridge**](./plugins/wp-mcp-agent-bridge/) | AI & Integraciones | `1.0.3` | `Production` | Built-in native **Model Context Protocol (MCP)** server over Streamable HTTP JSON-RPC 2.0. Connect AI coding agents (Cursor, Claude Desktop, Antigravity, VS Code) to manage posts, media (URL & Base64 uploads), full WooCommerce store operations, multi-engine SEO, and cache purging. |
+| [**WP MCP Agent Bridge**](./plugins/wp-mcp-agent-bridge/) | AI & Integraciones | `1.0.4` | `Production` | Built-in native **Model Context Protocol (MCP)** server over Streamable HTTP JSON-RPC 2.0. Connect AI coding agents (Cursor, Claude Desktop, Antigravity, VS Code) to manage posts, media (URL & Base64 uploads), full WooCommerce store operations, multi-engine SEO, and cache purging. |
 | [**WP Site Ops Toolkit**](./plugins/wp-site-ops-toolkit/) | DevOps & Maintenance | `1.0.2` | `Production` | **Requires PHP 8.2+.** Maintenance mode (HTTP 503) with client secret-link & IP allowlisting, 1-click database sanitation (expired transients, post revisions, trash, orphan postmeta), and outgoing email logger with blackhole simulation mode. |
-| [**WP Assets Pulse**](./plugins/wp-assets-pulse/) | Performance & WPO | `1.0.0` | `Production` | Front-end asset delivery optimization: WordPress core debloat (emojis, block CSS, inline SVG filters), non-blocking JavaScript loading (`defer` with exclusions), and DNS preconnections for external fonts. |
-| [**Modern WP Migrator**](./plugins/modern-wp-migrator/) | Backups & Migration | `7.113.4` | `Production` | Unrestricted site migration and backup engine: unlocked 500 GB file upload limit, direct 1-click restoration, zero telemetry/trackers, fully compatible with PHP 8.3+. |
+| [**Consent Guard**](./plugins/consent-guard/) | Privacy & Compliance | `1.0.0` | `Beta` | **Requires PHP 8.4+.** Cookie consent banner (GDPR / US state laws): per-category preferences, cache-safe tracking-script blocking, Google Consent Mode v2, GPC support, exportable consent log with anonymized IPs, and passive cookie scanner backed by the Open Cookie Database. |
+| [**WP Assets Pulse**](./plugins/wp-assets-pulse/) | Performance & WPO | `1.0.1` | `Production` | Front-end asset delivery optimization: WordPress core debloat (emojis, block CSS, inline SVG filters), non-blocking JavaScript loading (`defer` with exclusions), and DNS preconnections for external fonts. |
+| [**Modern WP Migrator**](./plugins/modern-wp-migrator/) | Backups & Migration | `7.113.5` | `Production` | Unrestricted site migration and backup engine: unlocked 500 GB file upload limit, direct 1-click restoration, zero telemetry/trackers, fully compatible with PHP 8.3+. |
 | [**WP LLMs.txt Manager**](./plugins/wp-llms-txt/) | Semantic AI & SEO | `1.1.0` | `Production` | Virtual routing generator and management editor for standard `/llms.txt` and `/llms-full.txt` files according to [llmstxt.org](https://llmstxt.org) specs for LLM web indexing. |
 
 ---
@@ -60,6 +61,7 @@ For production environments where client admins shouldn't inadvertently deactiva
 - [Essential Hardening & Security Technical Guide](./docs/essential-hardening.md)
 - [WP MCP Agent Bridge Technical Guide](./docs/wp-mcp-agent-bridge.md)
 - [WP Site Ops Toolkit Technical Guide](./docs/wp-site-ops-toolkit.md)
+- [Consent Guard Technical Guide](./docs/consent-guard.md)
 - [WP Assets Pulse Technical Guide](./docs/wp-assets-pulse.md)
 - [Modern WP Migrator Technical Guide](./docs/modern-wp-migrator.md)
 - [WP LLMs.txt Manager Technical Guide](./docs/wp-llms-txt.md)
@@ -78,6 +80,8 @@ php tests/wp-mcp-agent-bridge/run.php
 
 # Example: Running Site Operations suite
 php tests/wp-site-ops-toolkit/run.php
+php tests/consent-guard/run.php   # PHP 8.4+
+php tests/wp-llms-txt/run.php
 ```
 
 ---

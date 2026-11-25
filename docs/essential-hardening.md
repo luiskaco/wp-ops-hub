@@ -328,3 +328,22 @@ Detalles que conviene saber:
 3. Declara la opción en `get_default_settings()` y llama al módulo desde `init_modules()`.
 4. Añade el interruptor en `includes/trait-admin.php` y, si es una opción de tipo número, su validación en `sanitize_settings()`.
 5. Escribe las pruebas en `tests/essential-hardening/run.php` y actualiza esta guía y el README.
+
+## 7. Historial de cambios
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| `1.9.0` | 2026-11-23 | Aviso por correo cuando se bloquean 5 IPs distintas en 1 hora. Los 6 correos del plugin pasan a una plantilla HTML común con versión de texto plano. |
+| `1.8.1` | 2026-11-19 | Rediseño del panel de admin (CSS en `assets/admin.css`). Sin cambios de lógica. |
+| `1.8.0` | 2026-11-06 | Bloqueo temporal de la IP que escanea `?author=` y país/bandera de la IP en el registro, con Top 5 de IPs bloqueadas. |
+| `1.7.1` | 2026-11-05 | Clase separada en 13 módulos (traits) en `includes/`, sin cambios de comportamiento. |
+| `1.7.0` | 2026-11-05 | Límite en recuperación de contraseña, opción para desactivar Application Passwords y contraseñas robustas para administradores. |
+| `1.6.0` | 2026-11-05 | Alertas al crear o promover administradores y verificación diaria de checksums del núcleo. |
+| `1.5.0` | 2026-11-05 | HSTS opcional y Content-Security-Policy en modo solo-reporte. Compatibilidad declarada PHP 7.4–8.5. |
+| `1.4.2` | 2026-11-05 | **Seguridad:** cerrado el bypass del 2FA por `eh_2fa_verified`; `.htaccess` de uploads sin error 500 en Apache 2.4; el bloqueo de login ya no se extiende. |
+| `1.4.1` | 2026-11-04 | Captura del error fatal de `wp_mail` cuando el hosting deshabilita `mail()`. |
+| `1.4.0` | 2026-11-04 | Alertas de login de administradores, 2FA por correo y registro de eventos. |
+| `1.3.0` | 2026-11-04 | Alertas de actualizaciones por correo. |
+| `1.2.0` | 2026-11-04 | Honeypot anti-bot y rate limiting configurable. |
+| `1.1.0 – 1.1.1` | 2026-11-02 | 5 escudos nuevos. |
+| `1.0.0` | 2026-11-02 | Primera versión en el repositorio. |

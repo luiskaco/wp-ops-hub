@@ -15,6 +15,7 @@ Requisitos funcionales y no funcionales del ecosistema de micro-plugins portable
 | `RF-05` | `wp-assets-pulse` | Optimizar la carga de assets en el frontend. | Permite desactivar bloat del core (emojis, CSS de bloques), diferir scripts (`defer`) con exclusiones y emitir `preconnect` para fuentes externas. |
 | `RF-06` | `modern-wp-migrator` | Proveer migración y backups completos sin límites artificiales. | Permite exportar/importar sitios completos compatible con PHP 8.3+ y archivos grandes sin telemetría externa. |
 | `RF-07` | `wp-llms-txt` | Servir y gestionar `/llms.txt` y `/llms-full.txt` conforme a llmstxt.org. | Responde `200` en `/llms.txt` y `/llms-full.txt` (enrutamiento virtual + fallback), autogenera borrador en memoria, permite sincronización física opcional respetando archivos ajenos e importa archivos existentes. |
+| `RF-08` | `consent-guard` | Mostrar un banner de consentimiento de cookies conforme al RGPD y a las leyes de privacidad de EE. UU. | Bloquea los scripts de rastreo conocidos hasta el consentimiento (apto para caché), envía Google Consent Mode v2, respeta GPC, registra cada elección con IP anonimizada y la exporta a CSV, y escanea cookies sin enviar formularios. |
 
 ---
 
@@ -22,7 +23,7 @@ Requisitos funcionales y no funcionales del ecosistema de micro-plugins portable
 
 | ID | Requisito | Criterios de aceptación |
 |----|-----------|-------------------------|
-| `RNF-01` | Compatibilidad PHP 7.4 – 8.5 y WordPress 5.8+. | Todos los archivos PHP pasan `php -l` sin errores y usan APIs nativas de WordPress sin dependencias externas fuera de `vendor/`. |
-| `RNF-02` | Cero contaminación de esquema SQL en micro-plugins nativos. | Configuración y logs rotativos se almacenan en `wp_options` (con `autoload = false` para logs) o transients, sin ejecutar `dbDelta()`. |
+| `RNF-01` | Compatibilidad PHP 7.4 – 8.5 y WordPress 5.8+. Excepciones: `wp-site-ops-toolkit` exige PHP 8.2+ (ADR-006) y `consent-guard` PHP 8.4+ y WordPress 6.7+ (ADR-007). | Todos los archivos PHP pasan `php -l` sin errores y usan APIs nativas de WordPress sin dependencias externas fuera de `vendor/`. |
+| `RNF-02` | Cero contaminación de esquema SQL en micro-plugins nativos. Excepción: el registro de consentimientos de `consent-guard` (ADR-008). | Configuración y logs rotativos se almacenan en `wp_options` (con `autoload = false` para logs) o transients, sin ejecutar `dbDelta()`. |
 | `RNF-03` | Seguridad por defecto en endpoints y formularios. | Verificación de capacidades globales y por recurso (`read_post`, `edit_post`, `delete_post`), nonces en admin, validación contra `inputSchema`, sanitización de entradas, escape de salidas y rate limiting en rutas críticas. |
 | `RNF-04` | Publicación automatizada por tag de Git. | Cada release se dispara con `<slug>-v<versión>` manteniendo sincronizados el header del plugin, la constante `VERSION`, `README.md`, `docs/<slug>.md` y `docs/04_CHANGELOG.md`. |

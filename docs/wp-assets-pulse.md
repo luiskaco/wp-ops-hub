@@ -3,7 +3,7 @@
 Micro-plugin modular y ultraligero de optimización de entrega de recursos en front-end (WPO), eliminación de scripts innecesarios del núcleo de WordPress y optimización de carga diferida de assets.
 
 - **Nombre clave / Slug:** `wp-assets-pulse`
-- **Versión:** `1.0.0`
+- **Versión:** `1.0.1`
 - **Licencia:** GPL-2.0-or-later
 - **Compatibilidad:** WordPress 5.8+ | PHP 7.4 - 8.5
 - **Ubicación:** `plugins/wp-assets-pulse/`
@@ -66,3 +66,10 @@ plugins/wp-assets-pulse/
 │   └── trait-admin.php           # Panel con paleta visual unificada
 └── uninstall.php                 # Limpieza limpia de wp_options
 ```
+
+## 5. Historial de cambios
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| `1.0.1` | 2026-11-19 | Rediseño del panel de admin (CSS en `assets/admin.css`). Sin cambios de lógica. |
+| `1.0.0` | 2026-11-13 | Primera versión: debloat de emojis y bloques, `defer` configurable y `preconnect` para fuentes externas. |

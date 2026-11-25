@@ -35,6 +35,7 @@ php tests/essential-hardening/run.php
 - Incluye una comprobación de estructura: cada archivo de `plugins/essential-hardening/includes/` debe estar incorporado a la clase.
 - Cubre el 2FA (incluye la regresión del bypass `eh_2fa_verified`), el bloqueo de login, el honeypot, el `.htaccess` de uploads y las cabeceras HSTS/CSP.
 - `php tests/modern-wp-migrator/export-smoke.php` ejecuta las 17 etapas reales de exportación del migrador y borra la copia que genera. Es la forma de comprobar el plugin con una versión nueva de PHP, porque esas rutas solo se ejecutan al exportar. Hace falta el migrador activo en el WordPress local.
+- `php tests/wp-llms-txt/run.php` prueba el panel, la importación y los archivos físicos de `wp-llms-txt`. Crea y borra `llms.txt` en la raíz del WordPress local, así que se niega a correr si ya hay uno ahí.
 - Sale con código 1 si alguna prueba falla.
 - Al corregir un bug de seguridad, añade primero la prueba que lo reproduce.
 
@@ -42,7 +43,7 @@ php tests/essential-hardening/run.php
 
 ### Compatibilidad con versiones de PHP
 
-- Versión mínima declarada: **PHP 7.4**. No uses sintaxis ni funciones de PHP 8.0 o superior (`match`, `str_contains`, `?->`, tipos unión, argumentos con nombre) en el código propio de los plugins.
+- Versión mínima declarada: **PHP 7.4**. No uses sintaxis ni funciones de PHP 8.0 o superior (`match`, `str_contains`, `?->`, tipos unión, argumentos con nombre) en el código propio de los plugins. Excepciones: `wp-site-ops-toolkit` (PHP 8.2+, ADR-006) y `consent-guard` (PHP 8.4+, ADR-007).
 - El workflow `.github/workflows/php-compat.yml` revisa la sintaxis y los avisos de código obsoleto de todos los `.php` en PHP 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 y 8.5 en cada push a `main` y en cada pull request.
 - Para probar en local con otra versión: usa el `php.exe` de esa versión en `C:\laragon\bin\php\`, con `-n` (sin `php.ini`) y las extensiones `mysqli`, `mbstring`, `openssl`, `curl` y `zip` cargadas con `-d extension=...`.
 - Al subir el techo de PHP (por ejemplo, cuando salga la 8.6): añade la versión a la matriz del workflow, corre los tests y el `export-smoke.php`, y actualiza los README y las guías.
@@ -65,17 +66,13 @@ php tests/essential-hardening/run.php
     * Version:           1.0.0
     * Requires at least: 5.8
     * Requires PHP:      7.4
-    * Author:            Tu Nombre / Organización
+    * Author:            WordPress AI Utilities
     * License:           GPL-2.0-or-later
     * Text Domain:       nombre-del-plugin
     */
    ```
 
-3. **Principios de Calidad:**
-   - **Zero bloat:** Sin dependencias externas pesadas innecesarias.
-   - **Idempotencia:** Evitar colisiones de nombres usando clases (`final class`) o prefijos únicos.
-   - **Seguridad:** Validar nonces, sanitizar inputs (`sanitize_text_field`, etc.) y escapar outputs (`esc_html`, `esc_attr`).
-   - **Documentación:** Cada plugin debe incluir su propio `README.md` con ejemplos de uso.
+3. **Convenciones:** estructura, nombres, seguridad y PHP moderno en [`STYLE_GUIDE.md`](./STYLE_GUIDE.md). Cada plugin lleva su propio `README.md` con ejemplos de uso.
 
 4. **Vincular en entorno local de pruebas (Laragon):**
    Para probar en vivo dentro de WordPress en Windows:
@@ -87,17 +84,7 @@ php tests/essential-hardening/run.php
 
 ## 🎨 Diseño de los paneles de admin
 
-Todos los paneles comparten el mismo esqueleto visual (encabezado con degradado, pestañas en píldora, tarjetas, interruptores y botones redondeados) con un color de acento propio por plugin:
-
-| Plugin | Prefijo CSS | Acento |
-|---|---|---|
-| `essential-hardening` | `eh-` | verde azulado |
-| `wp-assets-pulse` | `pulse-` | naranja |
-| `wp-mcp-agent-bridge` | `mcp-` | índigo |
-| `wp-site-ops-toolkit` | `ops-` | azul |
-| `modern-wp-migrator` | `mwm-` (`lib/view/assets/css/modern-ui.css`) | rosa |
-
-Cada plugin lleva su propia copia del CSS en `assets/admin.css`, encolada solo en su pantalla, para seguir siendo portable. Para un plugin nuevo, copiar el CSS de `wp-site-ops-toolkit` y cambiar prefijo y variables `--a`, `--ad`, `--a-soft`.
+Tokens, colores de acento por plugin, componentes y reglas de accesibilidad: ver [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md).
 
 ## 🚀 Publicación de Versiones y Actualizaciones Automáticas (PUC)
 

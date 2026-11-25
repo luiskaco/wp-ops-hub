@@ -3,7 +3,7 @@
 Suite nativa, ultraligera y modular del **Model Context Protocol (MCP)** para WordPress. Convierte cualquier instalación de WordPress en un entorno totalmente gobernable por agentes autónomos y asistentes de IA (Cursor, Claude Desktop, Antigravity, VS Code, Windsurf, Grok) mediante transporte Streamable HTTP JSON-RPC 2.0 y autenticación nativa.
 
 - **Nombre clave / Slug:** `wp-mcp-agent-bridge`
-- **Versión:** `1.0.3`
+- **Versión:** `1.0.4`
 - **Licencia:** GPL-2.0-or-later
 - **Compatibilidad:** WordPress 5.8+ | PHP 7.4 - 8.5
 - **Ubicación:** `plugins/wp-mcp-agent-bridge/`
@@ -150,3 +150,13 @@ plugins/wp-mcp-agent-bridge/
 │   └── trait-admin.php           # Panel de control y generador de configuración de clientes
 └── uninstall.php                 # Limpieza de opciones y transitorios al desinstalar
 ```
+
+## 7. Historial de cambios
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| `1.0.4` | 2026-11-19 | Rediseño del panel de admin. Sin cambios de lógica. |
+| `1.0.3` | 2026-11-13 | Parámetro `featured_image_id` en `create-post` y `update-post`. |
+| `1.0.2` | 2026-11-13 | Endpoint movido de `/mcp/v1/` a `/mcp/v1/rpc` para no chocar con el índice del namespace. |
+| `1.0.1` | 2026-11-13 | **Seguridad:** permisos por objeto, validación de `inputSchema`, rate limiting y validación real de imágenes. Assets encolados, generador Base64, PUC, i18n y suite de pruebas. |
+| `1.0.0` | 2026-11-11 | Primera versión: servidor MCP con módulos Core, Medios, WooCommerce, SEO y Caché. |

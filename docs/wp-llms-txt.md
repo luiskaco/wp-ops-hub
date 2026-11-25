@@ -57,3 +57,15 @@ El plugin incorpora `Plugin Update Checker (v5.7)` para recibir actualizaciones 
 - **Filtro de Versión:** `setReleaseVersionFilter('/^wp-llms-txt-/i')`
 - **Asset Requerido:** `enableReleaseAssets('/^wp-llms-txt.*\.zip$/i', REQUIRE_RELEASE_ASSETS)`
 - **Normalización de Versión:** Filtro sobre `request_info_result` y `request_update_result` para transformar `wp-llms-txt-vX.Y.Z` en `X.Y.Z` semver estándar de WordPress.
+
+**Pruebas:** `php tests/wp-llms-txt/run.php` (46 pruebas contra el WordPress local; ver `docs/DEVELOPMENT.md`).
+
+## 6. Historial de cambios
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| `1.1.0` | 2026-11-06 | Detección e importación al editor de un `llms.txt` o `llms-full.txt` físico ajeno en la raíz (máx. 2 MB, UTF-8). |
+| `1.0.3` | 2026-11-05 | `/llms.txt` responde `200` directo, sin redirección `301` a la barra final. |
+| `1.0.2` | 2026-11-05 | Borrador en memoria sin autoguardado, hash de los archivos gestionados y `uninstall.php`. |
+| `1.0.1` | 2026-11-03 | Integración con Plugin Update Checker. |
+| `1.0.0` | 2026-11-02 | Primera versión: endpoints virtuales, editor, autogenerador y sincronización física opcional. |

@@ -45,3 +45,13 @@ Herramienta completa, modernizada y sin restricciones para la migración, export
 Este plugin es un fork y conserva las clases `Ai1wm_*`, las constantes `AI1WM_*` y el dominio de traducción del original. **No pueden estar activos a la vez.** Desde 7.113.3, `modern-wp-migrator.php` comprueba al cargar si `AI1WM_PLUGIN_BASENAME` o `Ai1wm_Main_Controller` ya existen; si es así, no carga el resto del plugin y muestra un aviso de administrador, en lugar de provocar un error fatal por redeclaración.
 
 Las correcciones de seguridad del código original **no llegan solas**: hay que revisarlas y traerlas a mano. El número `7.113.x` indica la base de la que partió el fork, no que esté al día con el original.
+
+## 5. Historial de cambios
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| `7.113.5` | 2026-11-19 | Rediseño del panel de admin. Sin cambios de lógica. |
+| `7.113.4` | 2026-11-05 | Compatibilidad declarada PHP 7.4–8.5 y prueba de exportación (`tests/modern-wp-migrator/export-smoke.php`). |
+| `7.113.3` | 2026-11-05 | Eliminado el formulario y el envío de feedback a servmask.com. Sin error fatal si All-in-One WP Migration ya está activo. |
+| `7.113.1 – 7.113.2` | 2026-11-03 | Compatibilidad con Plugin Update Checker en el monorepo. |
+| `7.113.0` | 2026-11-02 | Integración en el repositorio. |

@@ -12,4 +12,4 @@ Máximo 10 tareas activas. Al cerrar una tarea, se borra de aquí y se agrega un
 
 ## En curso / Pendiente
 
-*(Sin tareas bloqueantes abiertas.)*
+- **consent-guard 1.0.0 (código listo y probado en local, sin commit ni release, 2026-11-25):** falta revisarlo en un sitio con caché de página y rastreadores reales, y publicar con el tag `consent-guard-v1.0.0`. banner de consentimiento de cookies propio, recreado desde cero a partir del análisis de CookieAdmin 1.2.2 (sin copiar su código). Exige PHP 8.4+ (ADR-007) y guarda el registro de consentimientos en una tabla propia (ADR-008). Alcance 1.0: banner y preferencias por categoría, bloqueo de scripts apto para caché, Google Consent Mode v2, registro de consentimientos con exportación, escáner pasivo y shortcodes. Para la 1.1 quedan: geolocalización, "Do not sell" (CCPA) y consentimiento compartido entre subdominios.
