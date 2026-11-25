@@ -3,7 +3,7 @@
  * Plugin Name: Modern WP Migrator
  * Plugin URI: https://github.com/luiskaco/utilities_wordpress
  * Description: Herramienta moderna de migración y respaldos para WordPress. Exporta, importa y restaura sitios completos sin restricciones de tamaño. Totalmente optimizado para PHP 8.x.
- * Author: Modern Dev Team
+ * Author: WordPress AI Utilities
  * Author URI: https://github.com/luiskaco/utilities_wordpress
  * Version: 7.113.5
  * Requires at least: 5.6

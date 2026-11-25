@@ -6,7 +6,7 @@
  * Version:           1.0.2
  * Requires at least: 5.8
  * Requires PHP:      8.2
- * Author:            WordPress Operations Toolkit
+ * Author:            WordPress AI Utilities
  * License:           GPL-2.0-or-later
  * Text Domain:       wp-site-ops-toolkit
  */

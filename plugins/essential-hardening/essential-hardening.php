@@ -6,7 +6,7 @@
  * Version:           1.9.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
- * Author:            Web Security Tools
+ * Author:            WordPress AI Utilities
  * License:           GPL-2.0-or-later
  * Text Domain:       essential-hardening
  * Domain Path:       /languages

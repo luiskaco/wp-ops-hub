@@ -6,7 +6,7 @@
  * Version:           1.0.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
- * Author:            WordPress Performance Toolkit
+ * Author:            WordPress AI Utilities
  * License:           GPL-2.0-or-later
  * Text Domain:       wp-assets-pulse
  */
